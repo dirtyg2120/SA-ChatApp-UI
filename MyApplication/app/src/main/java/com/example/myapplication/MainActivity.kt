@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import com.google.android.material.snackbar.Snackbar
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.model.ChatRoom
 import com.example.myapplication.ui.ChatRoomAdapter
+import com.example.myapplication.ui.chatroom.ChatRoomFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -52,7 +54,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupChatRecyclerView() {
-        chatRoomAdapter = ChatRoomAdapter(mutableListOf())
         val initialMessages = listOf(
             ChatRoom("Hà SuTu", "Hello, how are you?"),
             ChatRoom("Nguyễn Văn A", "I'm good, thanks!"),
@@ -63,7 +64,21 @@ class MainActivity : AppCompatActivity() {
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        recyclerView.adapter = ChatRoomAdapter(initialMessages)
+
+        // Set up the adapter with click listener
+        val adapter = ChatRoomAdapter(initialMessages) { chatRoom ->
+            openChatRoom(chatRoom)
+        }
+        recyclerView.adapter = adapter
+    }
+
+    private fun openChatRoom(chatRoom: ChatRoom) {
+        val chatRoomFragment = ChatRoomFragment.newInstance(chatRoom)
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, chatRoomFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

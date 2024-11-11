@@ -12,8 +12,10 @@ import com.example.myapplication.R
 import com.example.myapplication.model.ChatRoom
 import com.example.myapplication.databinding.ItemChatMessageBinding
 
-class ChatRoomAdapter(private val chatRooms: List<ChatRoom>) :
-    RecyclerView.Adapter<ChatRoomAdapter.ChatViewHolder>() {
+class ChatRoomAdapter(
+    private val chatRooms: List<ChatRoom>,
+    private val onChatRoomClick: (ChatRoom) -> Unit
+) : RecyclerView.Adapter<ChatRoomAdapter.ChatViewHolder>() {
 
     private var selectedPosition = -1
 
@@ -43,7 +45,8 @@ class ChatRoomAdapter(private val chatRooms: List<ChatRoom>) :
             if (selectedPosition != currentPosition) {
                 selectedPosition = currentPosition
                 notifyItemChanged(currentPosition) // Update the background of clicked item
-                notifyItemChanged(selectedPosition) // Update the background of previously selected item (if any)
+                onChatRoomClick(chatRooms[position])
+//                notifyItemChanged(selectedPosition) // Update the background of previously selected item (if any)
 //                onClickListener?.onClick(chatRooms[currentPosition]) // Call the click listener with the clicked chat room
             }
         }
