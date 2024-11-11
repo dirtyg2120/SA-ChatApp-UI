@@ -1,5 +1,5 @@
 // ChatAdapter.kt
-package com.example.myapplication.ui
+package com.example.myapplication.ui.chatroom
 
 import android.view.LayoutInflater
 import android.view.View
@@ -45,8 +45,8 @@ class ChatRoomAdapter(
             if (selectedPosition != currentPosition) {
                 selectedPosition = currentPosition
                 notifyItemChanged(currentPosition) // Update the background of clicked item
-                onChatRoomClick(chatRooms[position])
 //                notifyItemChanged(selectedPosition) // Update the background of previously selected item (if any)
+                onChatRoomClick(chatRooms[position])
 //                onClickListener?.onClick(chatRooms[currentPosition]) // Call the click listener with the clicked chat room
             }
         }

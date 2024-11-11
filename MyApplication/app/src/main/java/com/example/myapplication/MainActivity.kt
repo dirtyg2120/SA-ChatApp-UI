@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import com.google.android.material.snackbar.Snackbar
@@ -16,7 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.model.ChatRoom
-import com.example.myapplication.ui.ChatRoomAdapter
+import com.example.myapplication.ui.chatroom.ChatRoomAdapter
 import com.example.myapplication.ui.chatroom.ChatRoomFragment
 
 class MainActivity : AppCompatActivity() {
