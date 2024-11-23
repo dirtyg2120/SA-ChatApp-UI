@@ -72,13 +72,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openChatRoom(chatRoom: ChatRoom) {
-        val chatRoomFragment = ChatRoomFragment.newInstance(chatRoom)
+        val fragmentTag = "ChatRoom_${chatRoom.username}"
+        val existingFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
 
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, chatRoomFragment)
-            .addToBackStack(null)
-            .commit()
+        if (existingFragment == null) {
+            val chatRoomFragment = ChatRoomFragment.newInstance(chatRoom)
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, chatRoomFragment, fragmentTag)
+                .addToBackStack(fragmentTag) // Add to back stack with a unique tag
+                .commit()
+        } else {
+            // Optionally navigate to the existing fragment
+            supportFragmentManager.popBackStack(fragmentTag, 0)
+        }
     }
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.

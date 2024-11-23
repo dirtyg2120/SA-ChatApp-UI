@@ -21,16 +21,17 @@
         app:navigationIcon="@drawable/ic_arrow_back" />
 
     <!-- Messages Display -->
-    <TextView
-        android:id="@+id/tv_message"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_messages"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Messages will appear here"
+        android:layout_height="0dp"
         android:padding="8dp"
-        android:textColor="#000000"
         app:layout_constraintTop_toBottomOf="@id/toolbar_chat_room"
+        app:layout_constraintBottom_toTopOf="@id/et_message"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+
 
     <!-- Message Input Field -->
 
