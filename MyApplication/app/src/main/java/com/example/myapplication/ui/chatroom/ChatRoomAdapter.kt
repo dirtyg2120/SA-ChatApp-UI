@@ -1,6 +1,7 @@
 // ChatAdapter.kt
 package com.example.myapplication.ui.chatroom
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,13 +33,10 @@ class ChatRoomAdapter(
         holder.bind(chatRooms[position])
 
         // Update background color based on selected position
-        holder.cardView.setBackgroundColor(
-            if (selectedPosition == position) {
-                ContextCompat.getColor(holder.itemView.context, R.color.selected_color)
-            } else {
-                ContextCompat.getColor(holder.itemView.context, R.color.normal_color)
-            }
-        )
+//        holder.cardView.setBackgroundColor(
+//            if (position == selectedPosition) Color.LTGRAY else Color.TRANSPARENT
+//        )
+
 
         holder.itemView.setOnClickListener {
             val currentPosition = position

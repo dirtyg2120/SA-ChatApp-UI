@@ -7,9 +7,12 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.databinding.FragmentChatRoomBinding
 import com.example.myapplication.model.ChatRoom
 import com.example.myapplication.model.Message
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class ChatRoomFragment : Fragment() {
 
@@ -87,16 +90,12 @@ class ChatRoomFragment : Fragment() {
     }
 
     private fun simulateIncomingMessages() {
-        val handler = android.os.Handler()
-        handler.postDelayed(object : Runnable {
-            override fun run() {
-                // Simulate receiving a message from the opponent
+        viewLifecycleOwner.lifecycleScope.launch {
+            while (_binding != null) {
                 addMessage("Hi, this is a message from your mate!", isFromOpponent = true)
-
-                // Continue the simulation every 5 seconds
-                handler.postDelayed(this, 5000)
+                delay(10000) // Wait for 5 seconds before adding the next message
             }
-        }, 5000)
+        }
     }
 
     override fun onDestroyView() {
@@ -104,4 +103,3 @@ class ChatRoomFragment : Fragment() {
         _binding = null
     }
 }
-

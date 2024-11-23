@@ -54,11 +54,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupChatRecyclerView() {
         val initialMessages = listOf(
-            ChatRoom("Hà SuTu", "Hello, how are you?"),
+            ChatRoom("User1", "Hello, how are you?"),
             ChatRoom("Nguyễn Văn A", "I'm good, thanks!"),
             ChatRoom("Nguyễn Văn B", "Did you finish the assignment?"),
             ChatRoom("User4", "Yes, I submitted it yesterday."),
-            ChatRoom("User5", "Great! Let's catch up later.")
+            ChatRoom("User5", "Great! Let's catch up later."),
+            ChatRoom("HaSuTu", "Hello, how are you?"),
+            ChatRoom("Something", "I'm good, thanks!"),
+            ChatRoom("SomeOne", "Did you finish the assignment?"),
+            ChatRoom("SomeBody", "Yes, I submitted it yesterday."),
+            ChatRoom("Hello World", "Great! Let's catch up later."),
         )
 
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
