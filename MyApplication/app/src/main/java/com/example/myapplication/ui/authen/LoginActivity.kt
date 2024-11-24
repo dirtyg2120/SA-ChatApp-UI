@@ -8,6 +8,47 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.Headers
+import retrofit2.http.POST
+
+// Data classes for request and response
+data class LoginRequest(
+    val username: String,
+    val password: String
+)
+
+data class LoginResponse(
+    val accessToken: String,
+    val tokenType: String,
+    val userId: Int
+)
+
+// Retrofit API interface
+interface ApiService {
+    @POST("api/login")
+    @Headers("Content-Type: application/json")
+    suspend fun login(@Body request: LoginRequest): LoginResponse
+}
+
+// Singleton Retrofit instance
+object RetrofitInstance {
+    private const val BASE_URL = "http://128.199.91.226:8082/"
+
+    val apiService: ApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
+}
 
 class LoginActivity : AppCompatActivity() {
 
@@ -24,12 +65,10 @@ class LoginActivity : AppCompatActivity() {
             val username = usernameEditText.text.toString().trim()
             val password = passwordEditText.text.toString().trim()
 
-            if (username == "user" && password == "123") {
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish() // Finish LoginActivity so it cannot be navigated back to
+            if (username.isNotEmpty() && password.isNotEmpty()) {
+                performLogin(username, password)
             } else {
-                Toast.makeText(this, "Invalid username or password", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please fill in both username and password", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -37,5 +76,36 @@ class LoginActivity : AppCompatActivity() {
             val intent = Intent(this, RegisterActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    private fun performLogin(username: String, password: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val loginRequest = LoginRequest(username, password)
+                val response = RetrofitInstance.apiService.login(loginRequest)
+
+                withContext(Dispatchers.Main) {
+                    saveAuthToken(response.accessToken)
+                    navigateToMainScreen()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@LoginActivity, "Login failed: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    private fun saveAuthToken(token: String) {
+        val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putString("accessToken", token)
+        editor.apply()
+    }
+
+    private fun navigateToMainScreen() {
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }
