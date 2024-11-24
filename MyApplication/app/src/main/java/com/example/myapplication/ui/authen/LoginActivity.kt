@@ -8,53 +8,23 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
+import com.example.myapplication.api.ApiRepository
+import com.example.myapplication.api.RetrofitInstance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.Headers
-import retrofit2.http.POST
-
-// Data classes for request and response
-data class LoginRequest(
-    val username: String,
-    val password: String
-)
-
-data class LoginResponse(
-    val accessToken: String,
-    val tokenType: String,
-    val userId: Int
-)
-
-// Retrofit API interface
-interface ApiService {
-    @POST("api/login")
-    @Headers("Content-Type: application/json")
-    suspend fun login(@Body request: LoginRequest): LoginResponse
-}
-
-// Singleton Retrofit instance
-object RetrofitInstance {
-    private const val BASE_URL = "http://128.199.91.226:8082/"
-
-    val apiService: ApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
-}
 
 class LoginActivity : AppCompatActivity() {
+
+    private lateinit var apiRepository: ApiRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.login)
+
+        // Initialize the repository
+        apiRepository = ApiRepository(RetrofitInstance.apiService)
 
         val usernameEditText = findViewById<EditText>(R.id.et_username)
         val passwordEditText = findViewById<EditText>(R.id.et_password)
@@ -81,8 +51,7 @@ class LoginActivity : AppCompatActivity() {
     private fun performLogin(username: String, password: String) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val loginRequest = LoginRequest(username, password)
-                val response = RetrofitInstance.apiService.login(loginRequest)
+                val response = apiRepository.login(username, password)
 
                 withContext(Dispatchers.Main) {
                     saveAuthToken(response.accessToken)
