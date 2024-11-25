@@ -84,7 +84,7 @@ class ChatRoomFragment : Fragment() {
     }
 
     private fun addMessage(content: String, isFromOpponent: Boolean) {
-        messages.add(Message(content, isFromOpponent))
+        messages.add(Message(content=content, isFromOpponent=isFromOpponent))
         messageAdapter.notifyItemInserted(messages.size - 1)
         binding.rvMessages.scrollToPosition(messages.size - 1)
     }

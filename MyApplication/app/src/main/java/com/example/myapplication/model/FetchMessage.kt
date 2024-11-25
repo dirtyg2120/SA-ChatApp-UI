@@ -1,9 +1,10 @@
 package com.example.myapplication.model
 
 data class FetchMessagesRequest(
-    val conversationId: Int,
-    val page: Int,
-    val pageSize: Int
+    val participantUserIds: List<Int>,
+//    val conversationId: Int,
+//    val page: Int,
+//    val pageSize: Int
 )
 
 data class FetchMessagesResponse(

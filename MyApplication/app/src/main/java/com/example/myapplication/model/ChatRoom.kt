@@ -4,8 +4,8 @@ import android.os.Parcel
 import android.os.Parcelable
 
 data class ChatRoom(
-    val username: String,
-    val message: String
+    val username: String? = "",
+    val message: String? = "",
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",

@@ -54,7 +54,7 @@ class LoginActivity : AppCompatActivity() {
                 val response = apiRepository.login(username, password)
 
                 withContext(Dispatchers.Main) {
-                    saveAuthToken(response.accessToken)
+                    saveAuthToken(response.accessToken, response.userId)
                     navigateToMainScreen()
                 }
             } catch (e: Exception) {
@@ -65,10 +65,11 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveAuthToken(token: String) {
+    private fun saveAuthToken(token: String, userId: Int) {
         val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putString("accessToken", token)
+        editor.putInt("userId", userId)
         editor.apply()
     }
 

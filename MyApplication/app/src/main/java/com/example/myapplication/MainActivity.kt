@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
@@ -72,6 +73,7 @@ class MainActivity : AppCompatActivity() {
                 // Retrieve the access token from SharedPreferences
                 val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
                 val accessToken = sharedPreferences.getString("accessToken", "") ?: ""
+                val userId = sharedPreferences.getInt("userId", 0)
 
                 if (accessToken.isEmpty()) {
                     withContext(Dispatchers.Main) {
@@ -82,21 +84,26 @@ class MainActivity : AppCompatActivity() {
 
                 // API call to fetch messages
                 val response = apiRepository.fetchMessages(
-                    conversationId = 1,
+                    participantUserIds = userId,
                     page = 0,
                     pageSize = 100,
                     cookie = "$accessToken"
                 )
 
+                Log.d("", response.toString())
+
                 // Map API response to ChatRoom model
-                val chatRooms = response.content.map {
-                    ChatRoom(username = "User ${it.sender}", message = it.content)
+                val chatRooms = response.content.map { message ->
+                    val username = message.participants?.getOrNull(0)?.conversationDisplayName ?: ""
+                    val messageText = message.chatMessages?.getOrNull(0)?.content ?: ""
+                    ChatRoom(username = username, message = messageText)
                 }
 
                 withContext(Dispatchers.Main) {
                     adapter.updateChatRooms(chatRooms)
                 }
             } catch (e: Exception) {
+                e.message?.let { Log.e("", it) }
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@MainActivity, "Failed to load messages: ${e.message}", Toast.LENGTH_SHORT).show()
                 }

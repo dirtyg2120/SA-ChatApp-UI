@@ -17,7 +17,7 @@ interface ApiService {
     @Headers("Content-Type: application/json")
     suspend fun login(@Body request: LoginRequest): LoginResponse
 
-    @POST("api/message/fetch")
+    @POST("api/conversation/fetch")
     @Headers("Content-Type: application/json")
     suspend fun fetchMessages(
         @Body request: FetchMessagesRequest,
