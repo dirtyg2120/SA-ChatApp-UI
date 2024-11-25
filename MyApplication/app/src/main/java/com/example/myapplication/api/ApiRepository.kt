@@ -1,6 +1,7 @@
 package com.example.myapplication.api
 
-import com.example.myapplication.model.ChatRoom
+import com.example.myapplication.model.FetchMessagesRequest
+import com.example.myapplication.model.FetchMessagesResponse
 import com.example.myapplication.model.LoginRequest
 import com.example.myapplication.model.LoginResponse
 
@@ -11,7 +12,8 @@ class ApiRepository(private val apiService: ApiService) {
         return apiService.login(request)
     }
 
-    suspend fun getRoomList(): List<ChatRoom> {
-        return apiService.getRoomList()
+    suspend fun fetchMessages(conversationId: Int, page: Int, pageSize: Int, cookie: String): FetchMessagesResponse {
+        val request = FetchMessagesRequest(conversationId, page, pageSize)
+        return apiService.fetchMessages(request, cookie)
     }
 }

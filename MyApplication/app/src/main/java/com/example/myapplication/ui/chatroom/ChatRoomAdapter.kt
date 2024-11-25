@@ -12,7 +12,7 @@ import com.example.myapplication.model.ChatRoom
 import com.example.myapplication.databinding.ItemChatMessageBinding
 
 class ChatRoomAdapter(
-    private val chatRooms: List<ChatRoom>,
+    private var chatRooms: List<ChatRoom>,
     private val onChatRoomClick: (ChatRoom) -> Unit
 ) : RecyclerView.Adapter<ChatRoomAdapter.ChatViewHolder>() {
 
@@ -59,5 +59,10 @@ class ChatRoomAdapter(
             tvUsername.text = chatRoom.username
             tvMessage.text = chatRoom.message
         }
+    }
+
+    fun updateChatRooms(newChatRooms: List<ChatRoom>) {
+        chatRooms = newChatRooms
+        notifyDataSetChanged()
     }
 }

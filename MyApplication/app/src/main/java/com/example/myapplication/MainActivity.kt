@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.os.Bundle
 import android.view.Menu
+import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
@@ -13,16 +14,23 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.api.ApiRepository
+import com.example.myapplication.api.RetrofitInstance
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.model.ChatRoom
 import com.example.myapplication.ui.chatroom.ChatRoomAdapter
 import com.example.myapplication.ui.chatroom.ChatRoomFragment
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var chatRoomAdapter: ChatRoomAdapter
+    private val apiRepository = ApiRepository(RetrofitInstance.apiService)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,8 +48,6 @@ class MainActivity : AppCompatActivity() {
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.nav_home, R.id.nav_gallery, R.id.nav_settings
@@ -53,27 +59,49 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupChatRecyclerView() {
-        val initialMessages = listOf(
-            ChatRoom("User1", "Hello, how are you?"),
-            ChatRoom("Nguyễn Văn A", "I'm good, thanks!"),
-            ChatRoom("Nguyễn Văn B", "Did you finish the assignment?"),
-            ChatRoom("User4", "Yes, I submitted it yesterday."),
-            ChatRoom("User5", "Great! Let's catch up later."),
-            ChatRoom("HaSuTu", "Hello, how are you?"),
-            ChatRoom("Something", "I'm good, thanks!"),
-            ChatRoom("SomeOne", "Did you finish the assignment?"),
-            ChatRoom("SomeBody", "Yes, I submitted it yesterday."),
-            ChatRoom("Hello World", "Great! Let's catch up later."),
-        )
-
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Set up the adapter with click listener
-        val adapter = ChatRoomAdapter(initialMessages) { chatRoom ->
+        val adapter = ChatRoomAdapter(emptyList()) { chatRoom ->
             openChatRoom(chatRoom)
         }
         recyclerView.adapter = adapter
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Retrieve the access token from SharedPreferences
+                val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
+                val accessToken = sharedPreferences.getString("accessToken", "") ?: ""
+
+                if (accessToken.isEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@MainActivity, "Authentication token missing!", Toast.LENGTH_SHORT).show()
+                    }
+                    return@launch
+                }
+
+                // API call to fetch messages
+                val response = apiRepository.fetchMessages(
+                    conversationId = 1,
+                    page = 0,
+                    pageSize = 100,
+                    cookie = "$accessToken"
+                )
+
+                // Map API response to ChatRoom model
+                val chatRooms = response.content.map {
+                    ChatRoom(username = "User ${it.sender}", message = it.content)
+                }
+
+                withContext(Dispatchers.Main) {
+                    adapter.updateChatRooms(chatRooms)
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Failed to load messages: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
     }
 
     private fun openChatRoom(chatRoom: ChatRoom) {
@@ -85,17 +113,14 @@ class MainActivity : AppCompatActivity() {
 
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, chatRoomFragment, fragmentTag)
-                .addToBackStack(fragmentTag) // Add to back stack with a unique tag
+                .addToBackStack(fragmentTag)
                 .commit()
         } else {
-            // Optionally navigate to the existing fragment
             supportFragmentManager.popBackStack(fragmentTag, 0)
         }
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
         return true
     }
