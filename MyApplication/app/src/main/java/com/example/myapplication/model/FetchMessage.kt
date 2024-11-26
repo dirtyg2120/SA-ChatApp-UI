@@ -2,6 +2,7 @@ package com.example.myapplication.model
 
 data class FetchMessagesRequest(
     val participantUserIds: List<Int>,
+    val phone: String? = null,
 //    val conversationId: Int,
 //    val page: Int,
 //    val pageSize: Int
