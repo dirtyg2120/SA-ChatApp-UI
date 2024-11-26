@@ -65,10 +65,16 @@ class MainActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        val adapter = ChatRoomAdapter(emptyList()) { chatRoom ->
+        chatRoomAdapter = ChatRoomAdapter(emptyList()) { chatRoom ->
             openChatRoom(chatRoom)
         }
-        recyclerView.adapter = adapter
+        recyclerView.adapter = chatRoomAdapter
+        fetchChatRooms()
+    }
+
+    // Function to fetch chat rooms after login or initialization
+    private fun fetchChatRooms(phone: String? = null) {
+        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -84,9 +90,10 @@ class MainActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                // API call to fetch messages
+                // API call to fetch messages, with phone as a search parameter if available
                 val response = apiRepository.fetchMessages(
                     participantUserIds = userId,
+                    phone = phone,
                     page = 0,
                     pageSize = 100,
                     cookie = "$accessToken"
@@ -101,8 +108,9 @@ class MainActivity : AppCompatActivity() {
                     val messageText = message.chatMessages?.getOrNull(0)?.content ?: ""
                     ChatRoom(username = username, message = messageText)
                 }
+
                 withContext(Dispatchers.Main) {
-                    adapter.updateChatRooms(chatRooms)
+                    chatRoomAdapter.updateChatRooms(chatRooms)
                 }
             } catch (e: Exception) {
                 e.message?.let { Log.e("", it) }
@@ -129,25 +137,31 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Handling search query in onCreateOptionsMenu
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.main, menu)
 
-        // Get the SearchView and set the icon color to white
         val searchItem = menu.findItem(R.id.action_search)
         val searchView = searchItem.actionView as SearchView
 
-        // Set listeners for search actions
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                // Logic for search query submission
-                if (query != null) {
-                    performSearch(query)
+                println("Query: $query")
+                if (query.isNullOrEmpty()) {
+                    fetchChatRooms()
+                } else {
+                    fetchChatRooms(query)
                 }
                 return true
             }
 
             override fun onQueryTextChange(newText: String?): Boolean {
-                // Logic for search query text change
+                println("Query changed: $newText")
+                if (newText.isNullOrEmpty()) {
+                    fetchChatRooms()
+                } else {
+                    fetchChatRooms(newText)
+                }
                 return true
             }
         })
