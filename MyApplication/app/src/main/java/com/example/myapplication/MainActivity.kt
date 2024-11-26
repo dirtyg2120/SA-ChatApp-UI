@@ -73,7 +73,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Function to fetch chat rooms after login or initialization
-    private fun fetchChatRooms(phone: String? = null) {
+    private fun fetchChatRooms(phone: String? = null, name: String? = null) {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -90,12 +90,13 @@ class MainActivity : AppCompatActivity() {
                     return@launch
                 }
 
-                // API call to fetch messages, with phone as a search parameter if available
+                // API call to fetch messages, with phone/name as a search parameter if available
                 val response = apiRepository.fetchMessages(
                     participantUserIds = userId,
                     phone = phone,
-                    page = 0,
-                    pageSize = 100,
+                    name = name,
+//                    page = 0,
+//                    pageSize = 100,
                     cookie = "$accessToken"
                 )
 
@@ -148,9 +149,11 @@ class MainActivity : AppCompatActivity() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 println("Query: $query")
                 if (query.isNullOrEmpty()) {
-                    fetchChatRooms()
+                    fetchChatRooms() // Call API without phone or name
+                } else if (query.startsWith("0")) {
+                    fetchChatRooms(phone = query) // Call API with phone number
                 } else {
-                    fetchChatRooms(query)
+                    fetchChatRooms(name = query) // Call API with name
                 }
                 return true
             }
@@ -158,9 +161,11 @@ class MainActivity : AppCompatActivity() {
             override fun onQueryTextChange(newText: String?): Boolean {
                 println("Query changed: $newText")
                 if (newText.isNullOrEmpty()) {
-                    fetchChatRooms()
+                    fetchChatRooms() // Call API without phone or name
+                } else if (newText.startsWith("0")) {
+                    fetchChatRooms(phone = newText) // Call API with phone number
                 } else {
-                    fetchChatRooms(newText)
+                    fetchChatRooms(name = newText) // Call API with name
                 }
                 return true
             }

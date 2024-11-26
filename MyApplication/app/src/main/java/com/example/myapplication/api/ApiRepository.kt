@@ -12,9 +12,9 @@ class ApiRepository(private val apiService: ApiService) {
         return apiService.login(request)
     }
 
-    suspend fun fetchMessages(participantUserIds: Int, phone: String?, page: Int, pageSize: Int, cookie: String): FetchMessagesResponse {
+    suspend fun fetchMessages(participantUserIds: Int, phone: String?, name: String?, cookie: String): FetchMessagesResponse {
 //        val request = FetchMessagesRequest(conversationId, page, pageSize)
-        val request = FetchMessagesRequest(listOf(participantUserIds), phone)
+        val request = FetchMessagesRequest(listOf(participantUserIds), phone, name)
         return apiService.fetchMessages(request, cookie)
     }
 }
