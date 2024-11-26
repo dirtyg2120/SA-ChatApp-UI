@@ -3,6 +3,8 @@ package com.example.myapplication
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.widget.ImageView
+import android.widget.SearchView
 import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
@@ -90,15 +92,15 @@ class MainActivity : AppCompatActivity() {
                     cookie = "$accessToken"
                 )
 
-                Log.d("", response.toString())
+                Log.d("INFO", response.toString())
 
                 // Map API response to ChatRoom model
                 val chatRooms = response.content.map { message ->
-                    val username = message.participants?.getOrNull(0)?.conversationDisplayName ?: ""
+                    val participant = message.participants?.find { it.userId == userId }
+                    val username = participant?.conversationDisplayName ?: ""
                     val messageText = message.chatMessages?.getOrNull(0)?.content ?: ""
                     ChatRoom(username = username, message = messageText)
                 }
-
                 withContext(Dispatchers.Main) {
                     adapter.updateChatRooms(chatRooms)
                 }
