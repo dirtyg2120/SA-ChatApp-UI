@@ -1,18 +1,24 @@
 package com.example.myapplication.ui.chatroom
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.databinding.FragmentChatRoomBinding
 import com.example.myapplication.model.ChatRoom
 import com.example.myapplication.model.Message
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import com.example.myapplication.model.WebSocketMessage
+import com.google.gson.Gson
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.websocket.*
+import io.ktor.websocket.*
+import kotlinx.coroutines.*
 
 class ChatRoomFragment : Fragment() {
 
@@ -35,6 +41,15 @@ class ChatRoomFragment : Fragment() {
     private lateinit var messageAdapter: MessageAdapter
     private val messages = mutableListOf<Message>() // Stores chat messages
 
+    // WebSocket client setup
+    private val client = HttpClient(CIO) {
+        install(WebSockets)
+    }
+    private lateinit var session: WebSocketSession
+
+    // Gson instance for serialization and deserialization
+    private val gson = Gson()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -45,10 +60,12 @@ class ChatRoomFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentChatRoomBinding.inflate(inflater, container, false)
         return binding.root
     }
+
+    private var isSessionConnected = false // Flag to track WebSocket connection state
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -74,32 +91,99 @@ class ChatRoomFragment : Fragment() {
         binding.btnSend.setOnClickListener {
             val message = binding.etMessage.text.toString().trim()
             if (message.isNotEmpty()) {
+//                val contentType = if (isSessionConnected) {
+//                    "TEXT" // Session is open, send a regular message
+//                } else {
+//                    "INIT_SESSION" // Session is not open, send an initial session message
+//                }
+                sendMessage(senderId = 1, contentType = "INIT_SESSION")
+                sendMessage(senderId = 1, contentType = "TEXT", content = message, conversationId = 1)
                 addMessage(message, isFromOpponent = false) // User message
                 binding.etMessage.text.clear()
             }
         }
 
-        // Simulate incoming opponent messages
-        simulateIncomingMessages()
+        // Connect to WebSocket
+        connectToWebSocket()
+
+        // Simulate incoming messages (for testing purposes)
+//    simulateIncomingMessages()
+    }
+
+
+    private fun connectToWebSocket() {
+        lifecycleScope.launch {
+            try {
+                // Connect to WebSocket server
+                session = client.webSocketSession(host = "128.199.91.226", port = 8082, path = "text")
+                isSessionConnected = true // Set the flag to true when connected
+
+                // Listen for incoming messages
+                while (true) {
+                    val frame = session.incoming.receive()
+                    when (frame) {
+                        is Frame.Text -> {
+                            val jsonMessage = frame.readText()
+                            Log.d("WebSocket", "Message received: $jsonMessage")
+                            handleIncomingMessage(jsonMessage) // Handle the incoming message
+                        }
+                        else -> {
+                            Log.d("WebSocket", "Non-text frame received")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("WebSocket", "Error: ${e.localizedMessage}")
+                isSessionConnected = false // Set the flag to false if the connection fails
+            }
+        }
+    }
+
+
+    private fun handleIncomingMessage(jsonMessage: String) {
+        try {
+            // Deserialize the incoming JSON string to WebSocketMessage using Gson
+            val message = gson.fromJson(jsonMessage, WebSocketMessage::class.java)
+            // Handle the message here (e.g., update the UI)
+            Log.d("WebSocket", "Parsed message: $message")
+            message.content?.let { addMessage(it, isFromOpponent = true) }
+        } catch (e: Exception) {
+            Log.e("WebSocket", "Error parsing incoming message: ${e.localizedMessage}")
+        }
+    }
+
+    private fun sendMessage(senderId: Int, contentType: String, content: String? = null, conversationId: Int? = null) {
+        // Create the message object
+        val message = WebSocketMessage(
+            senderId = senderId,
+            conversationId = conversationId,
+            contentType = contentType,
+            content = content
+        )
+
+        // Serialize the message to JSON using Gson
+        val jsonMessage = gson.toJson(message)
+
+        // Send the message over WebSocket
+        lifecycleScope.launch {
+            try {
+                session.send(jsonMessage) // Send message as JSON
+                Log.d("WebSocket", "Message sent: $jsonMessage")
+            } catch (e: Exception) {
+                Log.e("WebSocket", "Error sending message: ${e.localizedMessage}")
+            }
+        }
     }
 
     private fun addMessage(content: String, isFromOpponent: Boolean) {
-        messages.add(Message(content=content, isFromOpponent=isFromOpponent))
+        messages.add(Message(content = content, isFromOpponent = isFromOpponent))
         messageAdapter.notifyItemInserted(messages.size - 1)
         binding.rvMessages.scrollToPosition(messages.size - 1)
-    }
-
-    private fun simulateIncomingMessages() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            while (_binding != null) {
-                addMessage("Hi, this is a message from your mate!", isFromOpponent = true)
-                delay(10000) // Wait for 5 seconds before adding the next message
-            }
-        }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        client.close() // Close the WebSocket connection when the fragment is destroyed
     }
 }

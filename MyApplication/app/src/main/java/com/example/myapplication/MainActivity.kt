@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity() {
                 val chatRooms = response.content.map { message ->
                     val participant = message.participants?.find { it.userId == userId }
                     val username = participant?.conversationDisplayName ?: ""
-                    val messageText = message.chatMessages?.getOrNull(0)?.content ?: ""
+                    val messageText = message.chatMessages?.getOrNull(message.chatMessages.size-1)?.content ?: ""
                     ChatRoom(username = username, message = messageText)
                 }
 
