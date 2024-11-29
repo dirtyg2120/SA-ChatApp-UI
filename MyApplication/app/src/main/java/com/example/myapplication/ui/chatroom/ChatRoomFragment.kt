@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myapplication.MainActivity
 import com.example.myapplication.databinding.FragmentChatRoomBinding
 import com.example.myapplication.model.ChatRoom
 import com.example.myapplication.model.Message
@@ -39,15 +40,13 @@ class ChatRoomFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var messageAdapter: MessageAdapter
-    private val messages = mutableListOf<Message>() // Stores chat messages
+    private val messages = mutableListOf<Message>()
 
     // WebSocket client setup
     private val client = HttpClient(CIO) {
         install(WebSockets)
     }
     private lateinit var session: WebSocketSession
-
-    // Gson instance for serialization and deserialization
     private val gson = Gson()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -65,7 +64,7 @@ class ChatRoomFragment : Fragment() {
         return binding.root
     }
 
-    private var isSessionConnected = false // Flag to track WebSocket connection state
+    private var isSessionConnected = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -79,7 +78,9 @@ class ChatRoomFragment : Fragment() {
 
         // Handle back button click
         binding.toolbarChatRoom.setNavigationOnClickListener {
-            activity?.onBackPressed()
+            (requireActivity() as? MainActivity)?.fetchChatRooms()
+            (requireActivity() as? MainActivity)?.chatRoomAdapter?.resetSelection()
+            requireActivity().onBackPressedDispatcher.onBackPressed()
         }
 
         // Initialize RecyclerView
@@ -100,14 +101,12 @@ class ChatRoomFragment : Fragment() {
                 sendMessage(senderId = 1, contentType = "TEXT", content = message, conversationId = 1)
                 addMessage(message, isFromOpponent = false) // User message
                 binding.etMessage.text.clear()
+                // closeSession()
             }
         }
 
         // Connect to WebSocket
         connectToWebSocket()
-
-        // Simulate incoming messages (for testing purposes)
-//    simulateIncomingMessages()
     }
 
 
@@ -184,6 +183,21 @@ class ChatRoomFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        client.close() // Close the WebSocket connection when the fragment is destroyed
+        client.close()
+    }
+
+    private fun closeSession() {
+        lifecycleScope.launch {
+            try {
+                // Check if the session is connected before trying to close it
+                if (isSessionConnected) {
+                    session.close() // Close the WebSocket session
+                    isSessionConnected = false
+                    Log.d("WebSocket", "Session closed after sending message.")
+                }
+            } catch (e: Exception) {
+                Log.e("WebSocket", "Error while closing session: ${e.localizedMessage}")
+            }
+        }
     }
 }

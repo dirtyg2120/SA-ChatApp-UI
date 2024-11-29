@@ -3,7 +3,6 @@ package com.example.myapplication
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
-import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
@@ -32,7 +31,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
-    private lateinit var chatRoomAdapter: ChatRoomAdapter
+    lateinit var chatRoomAdapter: ChatRoomAdapter
     private val apiRepository = ApiRepository(RetrofitInstance.apiService)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,7 +72,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Function to fetch chat rooms after login or initialization
-    private fun fetchChatRooms(phone: String? = null, name: String? = null) {
+    fun fetchChatRooms(phone: String? = null, name: String? = null) {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -127,6 +126,7 @@ class MainActivity : AppCompatActivity() {
         val existingFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
 
         if (existingFragment == null) {
+            println("New one")
             val chatRoomFragment = ChatRoomFragment.newInstance(chatRoom)
 
             supportFragmentManager.beginTransaction()
@@ -134,7 +134,10 @@ class MainActivity : AppCompatActivity() {
                 .addToBackStack(fragmentTag)
                 .commit()
         } else {
-            supportFragmentManager.popBackStack(fragmentTag, 0)
+            println("Again")
+            supportFragmentManager.beginTransaction()
+                .show(existingFragment)
+                .commit()
         }
     }
 
@@ -149,11 +152,11 @@ class MainActivity : AppCompatActivity() {
             override fun onQueryTextSubmit(query: String?): Boolean {
                 println("Query: $query")
                 if (query.isNullOrEmpty()) {
-                    fetchChatRooms() // Call API without phone or name
+                    fetchChatRooms()
                 } else if (query.startsWith("0")) {
-                    fetchChatRooms(phone = query) // Call API with phone number
+                    fetchChatRooms(phone = query)
                 } else {
-                    fetchChatRooms(name = query) // Call API with name
+                    fetchChatRooms(name = query)
                 }
                 return true
             }
@@ -161,11 +164,11 @@ class MainActivity : AppCompatActivity() {
             override fun onQueryTextChange(newText: String?): Boolean {
                 println("Query changed: $newText")
                 if (newText.isNullOrEmpty()) {
-                    fetchChatRooms() // Call API without phone or name
+                    fetchChatRooms()
                 } else if (newText.startsWith("0")) {
-                    fetchChatRooms(phone = newText) // Call API with phone number
+                    fetchChatRooms(phone = newText)
                 } else {
-                    fetchChatRooms(name = newText) // Call API with name
+                    fetchChatRooms(name = newText)
                 }
                 return true
             }
@@ -177,10 +180,5 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
-    }
-
-    private fun performSearch(query: String) {
-        // Implement search logic here
-        println("Search query: $query")
     }
 }
