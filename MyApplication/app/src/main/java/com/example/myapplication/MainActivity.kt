@@ -80,7 +80,7 @@ class MainActivity : AppCompatActivity() {
                 // Retrieve the access token from SharedPreferences
                 val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
                 val accessToken = sharedPreferences.getString("accessToken", "") ?: ""
-                val userId = sharedPreferences.getInt("userId", 0)
+                val userId = sharedPreferences.getInt("userId", 1)
 
                 if (accessToken.isEmpty()) {
                     withContext(Dispatchers.Main) {
@@ -106,7 +106,9 @@ class MainActivity : AppCompatActivity() {
                     val participant = message.participants?.find { it.userId == userId }
                     val username = participant?.conversationDisplayName ?: ""
                     val messageText = message.chatMessages?.getOrNull(message.chatMessages.size-1)?.content ?: ""
-                    ChatRoom(username = username, message = messageText)
+                    val conversationId = participant?.conversationId
+
+                    ChatRoom(username = username, message = messageText, conversationId = conversationId)
                 }
 
                 withContext(Dispatchers.Main) {
@@ -122,19 +124,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openChatRoom(chatRoom: ChatRoom) {
+        val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
+        val userId = sharedPreferences.getInt("userId", 1)
+
         val fragmentTag = "ChatRoom_${chatRoom.username}"
         val existingFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
 
         if (existingFragment == null) {
-            println("New one")
-            val chatRoomFragment = ChatRoomFragment.newInstance(chatRoom)
+            val chatRoomFragment = ChatRoomFragment.newInstance(chatRoom, userId)  // Pass userId
 
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, chatRoomFragment, fragmentTag)
                 .addToBackStack(fragmentTag)
                 .commit()
         } else {
-            println("Again")
             supportFragmentManager.beginTransaction()
                 .show(existingFragment)
                 .commit()

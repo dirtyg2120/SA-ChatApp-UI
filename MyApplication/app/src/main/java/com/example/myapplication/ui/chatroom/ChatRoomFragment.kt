@@ -25,17 +25,23 @@ class ChatRoomFragment : Fragment() {
 
     companion object {
         private const val ARG_CHAT_ROOM = "chat_room"
+        private const val ARG_USER_ID = "user_id"
+        private const val ARG_CONVERSATION_ID = "conversation_id"
 
-        fun newInstance(chatRoom: ChatRoom): ChatRoomFragment {
+        fun newInstance(chatRoom: ChatRoom, userId: Int): ChatRoomFragment {
             val fragment = ChatRoomFragment()
             val args = Bundle()
             args.putParcelable(ARG_CHAT_ROOM, chatRoom)
+            args.putInt(ARG_USER_ID, userId)
+            args.putInt(ARG_CONVERSATION_ID, chatRoom.conversationId!!)
             fragment.arguments = args
             return fragment
         }
     }
 
     private var chatRoom: ChatRoom? = null
+    private var userId: Int = 1
+    private var conversationId: Int? = null
     private var _binding: FragmentChatRoomBinding? = null
     private val binding get() = _binding!!
 
@@ -68,6 +74,10 @@ class ChatRoomFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        arguments?.let {
+            userId = it.getInt(ARG_USER_ID)
+            conversationId = it.getInt(ARG_CONVERSATION_ID)
+        }
 
         // Set up the toolbar
         (activity as AppCompatActivity).setSupportActionBar(binding.toolbarChatRoom)
@@ -88,6 +98,7 @@ class ChatRoomFragment : Fragment() {
         binding.rvMessages.adapter = messageAdapter
         binding.rvMessages.layoutManager = LinearLayoutManager(context)
 
+
         // Handle "Send" button click
         binding.btnSend.setOnClickListener {
             val message = binding.etMessage.text.toString().trim()
@@ -97,9 +108,9 @@ class ChatRoomFragment : Fragment() {
 //                } else {
 //                    "INIT_SESSION" // Session is not open, send an initial session message
 //                }
-                sendMessage(senderId = 1, contentType = "INIT_SESSION")
-                sendMessage(senderId = 1, contentType = "TEXT", content = message, conversationId = 1)
-                addMessage(message, isFromOpponent = false) // User message
+                sendMessage(senderId = userId, contentType = "INIT_SESSION")
+                sendMessage(senderId = userId, contentType = "TEXT", content = message, conversationId = conversationId)
+//                addMessage(message, isFromOpponent = false)
                 binding.etMessage.text.clear()
                 // closeSession()
             }
@@ -115,7 +126,8 @@ class ChatRoomFragment : Fragment() {
             try {
                 // Connect to WebSocket server
                 session = client.webSocketSession(host = "128.199.91.226", port = 8082, path = "text")
-                isSessionConnected = true // Set the flag to true when connected
+                isSessionConnected = true
+                Log.d("WebSocket", "Connected to WebSocket")
 
                 // Listen for incoming messages
                 while (true) {
@@ -124,7 +136,7 @@ class ChatRoomFragment : Fragment() {
                         is Frame.Text -> {
                             val jsonMessage = frame.readText()
                             Log.d("WebSocket", "Message received: $jsonMessage")
-                            handleIncomingMessage(jsonMessage) // Handle the incoming message
+                            handleIncomingMessage(jsonMessage)
                         }
                         else -> {
                             Log.d("WebSocket", "Non-text frame received")
@@ -133,7 +145,7 @@ class ChatRoomFragment : Fragment() {
                 }
             } catch (e: Exception) {
                 Log.e("WebSocket", "Error: ${e.localizedMessage}")
-                isSessionConnected = false // Set the flag to false if the connection fails
+                isSessionConnected = false
             }
         }
     }
@@ -141,9 +153,7 @@ class ChatRoomFragment : Fragment() {
 
     private fun handleIncomingMessage(jsonMessage: String) {
         try {
-            // Deserialize the incoming JSON string to WebSocketMessage using Gson
             val message = gson.fromJson(jsonMessage, WebSocketMessage::class.java)
-            // Handle the message here (e.g., update the UI)
             Log.d("WebSocket", "Parsed message: $message")
             message.content?.let { addMessage(it, isFromOpponent = true) }
         } catch (e: Exception) {
@@ -152,7 +162,6 @@ class ChatRoomFragment : Fragment() {
     }
 
     private fun sendMessage(senderId: Int, contentType: String, content: String? = null, conversationId: Int? = null) {
-        // Create the message object
         val message = WebSocketMessage(
             senderId = senderId,
             conversationId = conversationId,
@@ -160,7 +169,6 @@ class ChatRoomFragment : Fragment() {
             content = content
         )
 
-        // Serialize the message to JSON using Gson
         val jsonMessage = gson.toJson(message)
 
         // Send the message over WebSocket
@@ -189,9 +197,8 @@ class ChatRoomFragment : Fragment() {
     private fun closeSession() {
         lifecycleScope.launch {
             try {
-                // Check if the session is connected before trying to close it
                 if (isSessionConnected) {
-                    session.close() // Close the WebSocket session
+                    session.close()
                     isSessionConnected = false
                     Log.d("WebSocket", "Session closed after sending message.")
                 }
