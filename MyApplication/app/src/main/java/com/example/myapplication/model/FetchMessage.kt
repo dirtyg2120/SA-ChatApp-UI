@@ -18,15 +18,6 @@ data class FetchMessagesResponse(
     val first: Boolean
 )
 
-//data class Message(
-//    val content: String,
-//    val contentType: String,
-//    val creationTime: Long,
-//    val conversationId: Int,
-//    val sender: Int,
-//    val id: Int
-//)
-
 data class Pageable(
     val pageNumber: Int,
     val pageSize: Int,

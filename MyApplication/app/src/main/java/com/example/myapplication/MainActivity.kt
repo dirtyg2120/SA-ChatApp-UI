@@ -94,8 +94,6 @@ class MainActivity : AppCompatActivity() {
                     participantUserIds = userId,
                     phone = phone,
                     name = name,
-//                    page = 0,
-//                    pageSize = 100,
                     cookie = "$accessToken"
                 )
 
@@ -105,11 +103,14 @@ class MainActivity : AppCompatActivity() {
                 val chatRooms = response.content.map { message ->
                     val participant = message.participants?.find { it.userId == userId }
                     val username = participant?.conversationDisplayName ?: ""
-                    val messageText = message.chatMessages?.getOrNull(message.chatMessages.size-1)?.content ?: ""
+                    val lastMessage = message.chatMessages?.lastOrNull()?.content ?: ""
+                    val messages = message.chatMessages ?: emptyList()
                     val conversationId = participant?.conversationId
 
-                    ChatRoom(username = username, message = messageText, conversationId = conversationId)
+                    ChatRoom(username=username, lastMessage=lastMessage, conversationId=conversationId, messages=messages)
                 }
+
+                println(chatRooms)
 
                 withContext(Dispatchers.Main) {
                     chatRoomAdapter.updateChatRooms(chatRooms)
@@ -131,7 +132,7 @@ class MainActivity : AppCompatActivity() {
         val existingFragment = supportFragmentManager.findFragmentByTag(fragmentTag)
 
         if (existingFragment == null) {
-            val chatRoomFragment = ChatRoomFragment.newInstance(chatRoom, userId)  // Pass userId
+            val chatRoomFragment = ChatRoomFragment.newInstance(chatRoom, userId)
 
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer, chatRoomFragment, fragmentTag)

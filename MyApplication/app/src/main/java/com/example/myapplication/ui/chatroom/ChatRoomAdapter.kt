@@ -46,7 +46,7 @@ class ChatRoomAdapter(
 
         fun bind(chatRoom: ChatRoom) {
             tvUsername.text = chatRoom.username
-            tvMessage.text = chatRoom.message
+            tvMessage.text = chatRoom.lastMessage
         }
     }
 

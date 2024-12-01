@@ -5,19 +5,22 @@ import android.os.Parcelable
 
 data class ChatRoom(
     val username: String? = "",
-    val message: String? = "",
-    val conversationId: Int? = null
+    val lastMessage: String? = "",
+    val conversationId: Int? = null,
+    val messages: List<ChatMessage> = emptyList()
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
-        parcel.readInt() ?: 0
+        parcel.readInt() ?: 0,
+        parcel.createTypedArrayList(ChatMessage.CREATOR) ?: emptyList()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(username)
-        parcel.writeString(message)
+        parcel.writeString(lastMessage)
         parcel.writeValue(conversationId)
+        parcel.writeTypedList(messages)
     }
 
     override fun describeContents(): Int = 0
