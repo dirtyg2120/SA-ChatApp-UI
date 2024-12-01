@@ -1,6 +1,6 @@
 package com.example.myapplication.model
 
-data class UploadFileResponse(
+data class FileUploadResponse(
     val success: Boolean,
     val link: String
 )

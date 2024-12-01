@@ -2,10 +2,11 @@ package com.example.myapplication.api
 
 import com.example.myapplication.model.FetchMessagesRequest
 import com.example.myapplication.model.FetchMessagesResponse
+import com.example.myapplication.model.FileUploadResponse
 import com.example.myapplication.model.LoginRequest
 import com.example.myapplication.model.LoginResponse
-import com.example.myapplication.model.UploadFileResponse
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 class ApiRepository(private val apiService: ApiService) {
 
@@ -19,14 +20,7 @@ class ApiRepository(private val apiService: ApiService) {
         return apiService.fetchMessages(request, cookie)
     }
 
-    suspend fun uploadFile(
-        cookie: String,
-        contentType: String,
-        extension: String,
-        file: MultipartBody.Part
-    ): UploadFileResponse {
-        val contentTypePart = MultipartBody.Part.createFormData("contentType", contentType)
-        val extensionPart = MultipartBody.Part.createFormData("extension", extension)
-        return apiService.uploadFile(cookie, contentTypePart, extensionPart, file)
+    suspend fun uploadFile(cookie: String, contentType: RequestBody, extension: RequestBody, file: MultipartBody.Part): FileUploadResponse {
+        return apiService.uploadFile(cookie, contentType, extension, file)
     }
 }

@@ -2,14 +2,14 @@ package com.example.myapplication.api
 
 import com.example.myapplication.model.FetchMessagesRequest
 import com.example.myapplication.model.FetchMessagesResponse
+import com.example.myapplication.model.FileUploadResponse
 import com.example.myapplication.model.LoginRequest
 import com.example.myapplication.model.LoginResponse
-import com.example.myapplication.model.UploadFileResponse
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
-import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Headers
 import retrofit2.http.Multipart
@@ -32,10 +32,10 @@ interface ApiService {
     @POST("api/file/upload")
     suspend fun uploadFile(
         @Header("Cookie") cookie: String,
-        @Part("contentType") contentType: MultipartBody.Part,
-        @Part("extension") extension: MultipartBody.Part,
+        @Part("contentType") contentType: RequestBody,
+        @Part("extension") extension: RequestBody,
         @Part file: MultipartBody.Part
-    ): UploadFileResponse
+    ): FileUploadResponse
 }
 
 // Retrofit Singleton Instance
