@@ -1,15 +1,23 @@
 package com.example.myapplication.ui.chatroom
 
+import android.content.Context
+import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
+import android.provider.DocumentsContract
+import android.provider.MediaStore
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.MainActivity
+import com.example.myapplication.api.ApiRepository
+import com.example.myapplication.api.RetrofitInstance
 import com.example.myapplication.databinding.FragmentChatRoomBinding
 import com.example.myapplication.model.ChatRoom
 import com.example.myapplication.model.Message
@@ -20,6 +28,10 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
 
 class ChatRoomFragment : Fragment() {
 
@@ -55,6 +67,13 @@ class ChatRoomFragment : Fragment() {
     private lateinit var session: WebSocketSession
     private val gson = Gson()
 
+    private var isSessionConnected = false
+    private var isSessionInitialized = false
+
+    private val pickFileLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let { uploadFile(it) }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -69,8 +88,6 @@ class ChatRoomFragment : Fragment() {
         _binding = FragmentChatRoomBinding.inflate(inflater, container, false)
         return binding.root
     }
-
-    private var isSessionConnected = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -103,17 +120,20 @@ class ChatRoomFragment : Fragment() {
         binding.btnSend.setOnClickListener {
             val message = binding.etMessage.text.toString().trim()
             if (message.isNotEmpty()) {
-//                val contentType = if (isSessionConnected) {
-//                    "TEXT" // Session is open, send a regular message
-//                } else {
-//                    "INIT_SESSION" // Session is not open, send an initial session message
-//                }
-                sendMessage(senderId = userId, contentType = "INIT_SESSION")
+                println(isSessionInitialized)
+                if (!isSessionInitialized) {
+                    sendMessageOverWebSocket(userId, "INIT_SESSION")
+                    isSessionInitialized = true
+                }
                 sendMessage(senderId = userId, contentType = "TEXT", content = message, conversationId = conversationId)
-//                addMessage(message, isFromOpponent = false)
+                addMessage(message, isFromOpponent = false)
                 binding.etMessage.text.clear()
-                // closeSession()
             }
+        }
+
+        // Handle "Attach File" button click
+        binding.btnAttachFile.setOnClickListener {
+            pickFileLauncher.launch("image/*") // Allow only image files
         }
 
         // Connect to WebSocket
@@ -136,7 +156,7 @@ class ChatRoomFragment : Fragment() {
                         is Frame.Text -> {
                             val jsonMessage = frame.readText()
                             Log.d("WebSocket", "Message received: $jsonMessage")
-                            handleIncomingMessage(jsonMessage)
+                            if (jsonMessage != "Server recieved message") { handleIncomingMessage(jsonMessage) }
                         }
                         else -> {
                             Log.d("WebSocket", "Non-text frame received")
@@ -162,6 +182,20 @@ class ChatRoomFragment : Fragment() {
     }
 
     private fun sendMessage(senderId: Int, contentType: String, content: String? = null, conversationId: Int? = null) {
+        // Check if the session is active
+        if (this::session.isInitialized && session.isActive) {
+            // If session is active, send the message normally
+            Log.d("WebSocket", "session is active")
+            sendMessageOverWebSocket(senderId, contentType, content, conversationId)
+        } else {
+            // If session is not active, send a message with "INIT_SESSION" and reconnect
+            Log.d("WebSocket", "Session is inactive, reconnecting...")
+            reconnectWebSocket() // Attempt to reconnect
+            sendMessageOverWebSocket(senderId, "INIT_SESSION", content, conversationId)
+        }
+    }
+
+    private fun sendMessageOverWebSocket(senderId: Int, contentType: String, content: String? = null, conversationId: Int? = null) {
         val message = WebSocketMessage(
             senderId = senderId,
             conversationId = conversationId,
@@ -182,10 +216,105 @@ class ChatRoomFragment : Fragment() {
         }
     }
 
+    private fun reconnectWebSocket() {
+        lifecycleScope.launch {
+            try {
+                session.close()
+                session = client.webSocketSession(host = "128.199.91.226", port = 8082, path = "text")
+                Log.d("WebSocket", "Reconnected to WebSocket")
+            } catch (e: Exception) {
+                Log.e("WebSocket", "Error reconnecting to WebSocket: ${e.localizedMessage}")
+            }
+        }
+    }
+
     private fun addMessage(content: String, isFromOpponent: Boolean) {
         messages.add(Message(content = content, isFromOpponent = isFromOpponent))
         messageAdapter.notifyItemInserted(messages.size - 1)
         binding.rvMessages.scrollToPosition(messages.size - 1)
+    }
+
+    private fun uploadFile(uri: Uri) {
+        val filePath = getFilePath(requireContext(), uri)
+        val file = File(filePath.toString())
+
+        if (!file.exists()) {
+            Log.e("FileUpload", "File not found at path: $filePath")
+            return
+        }
+
+        // Prepare the file for upload
+        val requestBody = RequestBody.create(MediaType.parse("image/jpeg"), file)
+        val filePart = MultipartBody.Part.createFormData("file", file.name, requestBody)
+        val contentType = RequestBody.create(MediaType.parse("text/plain"), "IMAGE")
+        val extension = RequestBody.create(MediaType.parse("text/plain"), "jpg")
+
+        lifecycleScope.launch {
+            try {
+                val response = ApiRepository(RetrofitInstance.apiService).uploadFile(
+                    cookie = "JSESSIONID=A35EAB74E5BF83D81A888CF6A6D51FB6",
+                    contentType = contentType,
+                    extension = extension,
+                    file = filePart
+                )
+
+                if (response.success) {
+                    val fileLink = response.link
+                    sendMessage(senderId = 1, contentType = "IMAGE", content = fileLink, conversationId = 1)
+                    addMessage(fileLink, isFromOpponent = false)
+                } else {
+                    Log.e("FileUpload", "File upload failed")
+                }
+            } catch (e: Exception) {
+                Log.e("FileUpload", "Error uploading file: ${e.localizedMessage}")
+            }
+        }
+    }
+
+
+    fun getFilePath(context: Context, uri: Uri): String? {
+        // Check if the URI is a document URI (i.e., the file is in external storage)
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+            // Get the document ID
+            val docId = DocumentsContract.getDocumentId(uri)
+            val split = docId.split(":")
+            val type = split[0]
+
+            var contentUri: Uri? = null
+            if ("primary" == type) {
+                contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            } else {
+                // Handle other types (like cloud storage URIs)
+            }
+
+            val selection = "_id=?"
+            val selectionArgs = arrayOf(split[1])
+
+            return getDataColumn(context, contentUri, selection, selectionArgs)
+        } else if ("content" == uri.scheme) {
+            // Handle content URIs (e.g., images in gallery)
+            return getDataColumn(context, uri, null, null)
+        } else if ("file" == uri.scheme) {
+            // Handle file URIs (direct paths)
+            return uri.path
+        }
+        return null
+    }
+
+    private fun getDataColumn(context: Context, uri: Uri?, selection: String?, selectionArgs: Array<String>?): String? {
+        var cursor: Cursor? = null
+        val column = "_data"
+        val projection = arrayOf(column)
+        try {
+            cursor = context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)
+            if (cursor != null && cursor.moveToFirst()) {
+                val columnIndex = cursor.getColumnIndexOrThrow(column)
+                return cursor.getString(columnIndex)
+            }
+        } finally {
+            cursor?.close()
+        }
+        return null
     }
 
     override fun onDestroyView() {
@@ -194,17 +323,4 @@ class ChatRoomFragment : Fragment() {
         client.close()
     }
 
-    private fun closeSession() {
-        lifecycleScope.launch {
-            try {
-                if (isSessionConnected) {
-                    session.close()
-                    isSessionConnected = false
-                    Log.d("WebSocket", "Session closed after sending message.")
-                }
-            } catch (e: Exception) {
-                Log.e("WebSocket", "Error while closing session: ${e.localizedMessage}")
-            }
-        }
-    }
 }
