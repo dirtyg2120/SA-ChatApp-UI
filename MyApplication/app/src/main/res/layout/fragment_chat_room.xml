@@ -23,11 +23,6 @@
         app:title="Chat Room" />
 
     <!-- Messages Display -->
-
-    <!-- EditText for Message Input -->
-
-    <!-- Send Button -->
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_messages"
         android:layout_width="0dp"
@@ -40,9 +35,10 @@
         app:layout_constraintTop_toBottomOf="@id/toolbar_chat_room"
         app:layout_constraintVertical_bias="0.0" />
 
+    <!-- EditText for Message Input -->
     <EditText
         android:id="@+id/et_message"
-        android:layout_width="300dp"
+        android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginEnd="12dp"
         android:layout_marginBottom="8dp"
@@ -53,8 +49,21 @@
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_send"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Attach Button -->
+
+    <!-- Send Button -->
+    <Button
+        android:id="@+id/btn_attach_file"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/ic_attach_file"
+        android:contentDescription="Attach file"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_send" />
 
     <Button
         android:id="@+id/btn_send"
@@ -70,5 +79,4 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintVertical_bias="0.972" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
