@@ -5,6 +5,8 @@ import com.example.myapplication.model.FetchMessagesResponse
 import com.example.myapplication.model.FileUploadResponse
 import com.example.myapplication.model.LoginRequest
 import com.example.myapplication.model.LoginResponse
+import com.example.myapplication.model.SignUpRequest
+import com.example.myapplication.model.SignUpResponse
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Retrofit
@@ -17,6 +19,7 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 
 interface ApiService {
+
     @POST("api/login")
     @Headers("Content-Type: application/json")
     suspend fun login(@Body request: LoginRequest): LoginResponse
@@ -36,7 +39,16 @@ interface ApiService {
         @Part("extension") extension: RequestBody,
         @Part file: MultipartBody.Part
     ): FileUploadResponse
+
+    // Add this signUp endpoint to ApiService
+    @POST("api/signUp")
+    @Headers("Content-Type: application/json")
+    suspend fun signUp(
+        @Header("Cookie") cookie: String,
+        @Body request: SignUpRequest
+    ): SignUpResponse
 }
+
 
 // Retrofit Singleton Instance
 object RetrofitInstance {

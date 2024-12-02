@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <TextView
-        android:id="@+id/login_text"
+        android:id="@+id/register_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Register"
@@ -30,7 +30,7 @@
         app:layout_constraintTop_toTopOf="parent"/>
 
     <EditText
-        android:id="@+id/et_username"
+        android:id="@+id/et_username_register"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginTop="32dp"
@@ -47,7 +47,7 @@
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <EditText
-        android:id="@+id/et_phone"
+        android:id="@+id/et_phone_register"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
@@ -59,12 +59,12 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:background="@drawable/rounded_edittext"
-        app:layout_constraintTop_toBottomOf="@+id/et_username"
+        app:layout_constraintTop_toBottomOf="@+id/et_username_register"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <EditText
-        android:id="@+id/et_email"
+        android:id="@+id/et_email_register"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
@@ -76,30 +76,31 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:background="@drawable/rounded_edittext"
-        app:layout_constraintTop_toBottomOf="@+id/et_phone"
+        app:layout_constraintTop_toBottomOf="@+id/et_phone_register"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <EditText
-        android:id="@+id/et_dob"
+        android:id="@+id/et_dob_register"
         android:layout_width="0dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:backgroundTint="#DDDDDD"
-        android:hint="Date of birth"
-        android:textColor="#000000"
-        android:inputType="date"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:background="@drawable/rounded_edittext"
-        app:layout_constraintTop_toBottomOf="@+id/et_email"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+		android:layout_height="48dp"
+		android:layout_marginTop="16dp"
+		android:layout_marginStart="24dp"
+		android:layout_marginEnd="24dp"
+		android:backgroundTint="#DDDDDD"
+		android:hint="Date of birth"
+		android:textColor="#000000"
+		android:inputType="none"
+		android:focusable="false"
+		android:paddingStart="16dp"
+		android:paddingEnd="16dp"
+		android:background="@drawable/rounded_edittext"
+		app:layout_constraintTop_toBottomOf="@+id/et_email_register"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintEnd_toEndOf="parent" />
 
     <EditText
-        android:id="@+id/et_password"
+        android:id="@+id/et_password_register"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginTop="16dp"
@@ -112,12 +113,12 @@
         android:paddingStart="16dp"
         android:paddingEnd="16dp"
         android:background="@drawable/rounded_edittext"
-        app:layout_constraintTop_toBottomOf="@+id/et_dob"
+        app:layout_constraintTop_toBottomOf="@+id/et_dob_register"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
     <Button
-        android:id="@+id/btn_register"
+        android:id="@+id/btn_register_register"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginTop="32dp"
@@ -129,7 +130,7 @@
         android:textSize="16sp"
         android:layout_gravity="center"
         android:background="@drawable/rounded_button"
-        app:layout_constraintTop_toBottomOf="@+id/et_password"
+        app:layout_constraintTop_toBottomOf="@+id/et_password_register"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
