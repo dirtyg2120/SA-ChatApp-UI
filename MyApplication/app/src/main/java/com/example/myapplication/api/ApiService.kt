@@ -3,6 +3,8 @@ package com.example.myapplication.api
 import com.example.myapplication.model.FetchMessagesRequest
 import com.example.myapplication.model.FetchMessagesResponse
 import com.example.myapplication.model.FileUploadResponse
+import com.example.myapplication.model.GenerateConversationRequest
+import com.example.myapplication.model.GenerateConversationResponse
 import com.example.myapplication.model.LoginRequest
 import com.example.myapplication.model.LoginResponse
 import com.example.myapplication.model.SignUpRequest
@@ -40,13 +42,26 @@ interface ApiService {
         @Part file: MultipartBody.Part
     ): FileUploadResponse
 
-    // Add this signUp endpoint to ApiService
     @POST("api/signUp")
     @Headers("Content-Type: application/json")
     suspend fun signUp(
         @Header("Cookie") cookie: String,
         @Body request: SignUpRequest
     ): SignUpResponse
+
+    @POST("api/conversation/generate")
+    @Headers("Content-Type: application/json")
+    suspend fun generateConversation(
+        @Body request: GenerateConversationRequest
+    ): GenerateConversationResponse
+
+    @Multipart
+    @POST("api/update/avatar")
+    suspend fun updateAvatar(
+        @Part("userId") userId: RequestBody,
+        @Part("extension") extension: RequestBody,
+        @Part file: MultipartBody.Part
+    ): FileUploadResponse
 }
 
 
