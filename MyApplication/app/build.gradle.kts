@@ -65,6 +65,9 @@ dependencies {
     // Serialize
     implementation(libs.gson.v289)
 
+    // Image
+    implementation(libs.glide)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

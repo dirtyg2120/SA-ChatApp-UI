@@ -115,6 +115,17 @@ class ChatRoomFragment : Fragment() {
         binding.rvMessages.adapter = messageAdapter
         binding.rvMessages.layoutManager = LinearLayoutManager(context)
 
+        arguments?.getParcelable<ChatRoom>(ARG_CHAT_ROOM)?.let {
+            chatRoom = it
+            // Convert ChatMessage to Message and assign to messages
+            messages.clear()  // Clear any existing messages
+            chatRoom?.messages?.let { chatMessages ->
+                chatMessages.forEach { chatMessage ->
+                    addMessage(content = chatMessage.content.toString(), isFromOpponent = true)
+                }
+            }
+        }
+
 
         // Handle "Send" button click
         binding.btnSend.setOnClickListener {
