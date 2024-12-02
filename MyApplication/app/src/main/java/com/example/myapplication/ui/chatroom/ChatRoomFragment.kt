@@ -121,7 +121,8 @@ class ChatRoomFragment : Fragment() {
             messages.clear()
             chatRoom?.messages?.let { chatMessages ->
                 chatMessages.forEach { chatMessage ->
-                    addMessage(content = chatMessage.content.toString(), isFromOpponent = true)
+                    val isFromOpponent = if (chatMessage.sender == userId) false else true
+                    addMessage(content = chatMessage.content.toString(), isFromOpponent = isFromOpponent)
                 }
             }
         }

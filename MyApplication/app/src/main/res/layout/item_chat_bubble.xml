@@ -17,7 +17,6 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:src="@drawable/ic_avatar_default"
-            android:layout_marginEnd="12dp"
             android:contentDescription="User Avatar"
             android:scaleType="centerCrop"
             android:background="@drawable/avatar_circle_bg"
