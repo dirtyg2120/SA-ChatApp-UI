@@ -74,6 +74,7 @@ class MessageAdapter(
             } else {
                 // User's message: Right align
                 messageTextView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_user)
+                imageMessageView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_user)
                 layoutParams.marginStart = 640
                 layoutParams.marginEnd = 16
 //                parentLayout.gravity = Gravity.END
