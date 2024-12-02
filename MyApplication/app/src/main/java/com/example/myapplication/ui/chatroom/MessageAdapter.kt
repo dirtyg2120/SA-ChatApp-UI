@@ -4,6 +4,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -29,6 +30,7 @@ class MessageAdapter(
 
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val messageTextView: TextView = itemView.findViewById(R.id.tv_message)
+        private val avatarImageView: ImageView = itemView.findViewById(R.id.ivAvatar)
 
         fun bind(message: Message) {
             messageTextView.text = message.content
@@ -44,6 +46,7 @@ class MessageAdapter(
                 layoutParams.marginStart = 16
                 layoutParams.marginEnd = 64
                 parentLayout.gravity = Gravity.START
+                avatarImageView.visibility = View.VISIBLE
             } else {
                 // User's message: Right align
                 messageTextView.background =
@@ -51,6 +54,7 @@ class MessageAdapter(
                 layoutParams.marginStart = 640
                 layoutParams.marginEnd = 16
                 parentLayout.gravity = Gravity.END
+                avatarImageView.visibility = View.GONE
             }
             messageTextView.layoutParams = layoutParams
         }
