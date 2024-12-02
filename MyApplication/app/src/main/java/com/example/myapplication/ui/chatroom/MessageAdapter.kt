@@ -1,5 +1,10 @@
 package com.example.myapplication.ui.chatroom
 
+import android.content.Intent
+import android.net.Uri
+import android.text.Spannable
+import android.text.method.LinkMovementMethod
+import android.text.style.URLSpan
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -35,14 +40,18 @@ class MessageAdapter(
         private val imageMessageView: ImageView = itemView.findViewById(R.id.iv_image_message) // ImageView for displaying images
 
         fun bind(message: Message) {
-            // Check if the message content is a URL (image link)
+            // Check if the message content is a URL (image link or other links)
             if (isValidImageUrl(message.content.toString())) {
                 // If it's an image URL, load the image
                 messageTextView.visibility = View.GONE
                 imageMessageView.visibility = View.VISIBLE
-                Glide.with(itemView.context)
-                    .load(message.content)
-                    .into(imageMessageView)
+                Glide.with(itemView.context).load(message.content).into(imageMessageView)
+            } else if (isValidUrl(message.content.toString())) {
+                // If it's a URL (not an image), display it as a clickable link
+                messageTextView.visibility = View.VISIBLE
+                imageMessageView.visibility = View.GONE
+                messageTextView.text = message.content
+                makeLinkClickable(message.content.toString())
             } else {
                 // If it's a text message
                 messageTextView.visibility = View.VISIBLE
@@ -56,19 +65,17 @@ class MessageAdapter(
 
             if (message.isFromOpponent) {
                 // Opponent's message: Left align
-                messageTextView.background =
-                    ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_partner)
+                messageTextView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_partner)
                 layoutParams.marginStart = 16
                 layoutParams.marginEnd = 64
-                parentLayout.gravity = Gravity.START
+//                parentLayout.gravity = Gravity.START
                 avatarImageView.visibility = View.VISIBLE
             } else {
                 // User's message: Right align
-                messageTextView.background =
-                    ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_user)
+                messageTextView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_user)
                 layoutParams.marginStart = 640
                 layoutParams.marginEnd = 16
-                parentLayout.gravity = Gravity.END
+//                parentLayout.gravity = Gravity.END
                 avatarImageView.visibility = View.GONE
             }
             messageTextView.layoutParams = layoutParams
@@ -77,6 +84,21 @@ class MessageAdapter(
         // Helper function to check if the URL is a valid image URL
         private fun isValidImageUrl(url: String): Boolean {
             return url.startsWith("https://") && (url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".jpeg"))
+        }
+
+        // Helper function to check if the URL is a valid non-image URL
+        private fun isValidUrl(url: String): Boolean {
+            return url.startsWith("http://") || url.startsWith("https://")
+        }
+
+        // Helper function to make the URL clickable
+        private fun makeLinkClickable(url: String) {
+            val spannable = Spannable.Factory.getInstance().newSpannable(url)
+            val span = URLSpan(url)
+            spannable.setSpan(span, 0, url.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            messageTextView.text = spannable
+            messageTextView.movementMethod = LinkMovementMethod.getInstance()
+//            messageTextView.setLinkTextColor(ContextCompat.getColor(itemView.context, R.color.blue))
         }
     }
 }
