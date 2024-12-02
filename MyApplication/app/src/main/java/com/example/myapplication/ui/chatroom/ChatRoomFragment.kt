@@ -118,7 +118,7 @@ class ChatRoomFragment : Fragment() {
         arguments?.getParcelable<ChatRoom>(ARG_CHAT_ROOM)?.let {
             chatRoom = it
             // Convert ChatMessage to Message and assign to messages
-            messages.clear()  // Clear any existing messages
+            messages.clear()
             chatRoom?.messages?.let { chatMessages ->
                 chatMessages.forEach { chatMessage ->
                     addMessage(content = chatMessage.content.toString(), isFromOpponent = true)
@@ -271,7 +271,7 @@ class ChatRoomFragment : Fragment() {
 
                 if (response.success) {
                     val fileLink = response.link
-                    sendMessage(senderId = 1, contentType = "IMAGE", content = fileLink, conversationId = 1)
+                    sendMessage(senderId = userId, contentType = "IMAGE", content = fileLink, conversationId = conversationId)
                     addMessage(fileLink, isFromOpponent = false)
                 } else {
                     Log.e("FileUpload", "File upload failed")
