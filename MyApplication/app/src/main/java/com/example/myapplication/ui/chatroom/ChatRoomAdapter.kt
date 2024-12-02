@@ -7,7 +7,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
 import com.example.myapplication.model.ChatRoom
-import com.example.myapplication.databinding.ItemChatMessageBinding
+import com.example.myapplication.databinding.ItemChatRoomBinding
 
 class ChatRoomAdapter(
     private var chatRooms: List<ChatRoom>,
@@ -17,7 +17,7 @@ class ChatRoomAdapter(
     private var selectedPosition = -1
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ChatViewHolder {
-        val binding = ItemChatMessageBinding.inflate(
+        val binding = ItemChatRoomBinding.inflate(
             LayoutInflater.from(parent.context),
             parent,
             false
