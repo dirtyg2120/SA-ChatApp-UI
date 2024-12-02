@@ -66,6 +66,7 @@ class MessageAdapter(
             if (message.isFromOpponent) {
                 // Opponent's message: Left align
                 messageTextView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_partner)
+                imageMessageView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_partner)
                 layoutParams.marginStart = 16
                 layoutParams.marginEnd = 64
 //                parentLayout.gravity = Gravity.START

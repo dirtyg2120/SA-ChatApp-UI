@@ -145,7 +145,7 @@ class ChatRoomFragment : Fragment() {
 
         // Handle "Attach File" button click
         binding.btnAttachFile.setOnClickListener {
-            pickFileLauncher.launch("image/*") // Allow only image files
+            pickFileLauncher.launch("image/*")
         }
 
         // Connect to WebSocket
