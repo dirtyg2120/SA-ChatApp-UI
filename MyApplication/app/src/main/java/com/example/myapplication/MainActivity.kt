@@ -1,11 +1,13 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.widget.SearchView
 import android.widget.Toast
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -20,8 +22,11 @@ import com.example.myapplication.api.ApiRepository
 import com.example.myapplication.api.RetrofitInstance
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.model.ChatRoom
+import com.example.myapplication.ui.authen.LoginActivity
 import com.example.myapplication.ui.chatroom.ChatRoomAdapter
 import com.example.myapplication.ui.chatroom.ChatRoomFragment
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,6 +38,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     lateinit var chatRoomAdapter: ChatRoomAdapter
     private val apiRepository = ApiRepository(RetrofitInstance.apiService)
+    private lateinit var fab: FloatingActionButton
+    private lateinit var fabGroupChat: ExtendedFloatingActionButton
+    private lateinit var fabAddFriend: ExtendedFloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,11 +50,53 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
-        binding.appBarMain.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+//        binding.appBarMain.fab.setOnClickListener { view ->
+//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                .setAction("Action", null)
+//                .setAnchorView(R.id.fab).show()
+//        }
+
+        // Initialize the FABs
+        fab = findViewById(R.id.fab)
+        fabGroupChat = findViewById(R.id.fab_group_chat)
+        fabAddFriend = findViewById(R.id.fab_add_friend)
+
+        // Initially hide the secondary FABs
+        fabGroupChat.visibility = View.GONE
+        fabAddFriend.visibility = View.GONE
+
+        // Main FAB click listener to toggle visibility of additional FABs
+        fab.setOnClickListener {
+            if (fabGroupChat.visibility == View.GONE) {
+                // Show additional FABs
+                fabGroupChat.visibility = View.VISIBLE
+                fabAddFriend.visibility = View.VISIBLE
+            } else {
+                // Hide additional FABs
+                fabGroupChat.visibility = View.GONE
+                fabAddFriend.visibility = View.GONE
+            }
         }
+
+        // Handle Create Group Chat click
+        fabGroupChat.setOnClickListener {
+            // Handle the logic for creating a group chat (e.g., navigate to a new screen)
+            Toast.makeText(this, "Create Group Chat", Toast.LENGTH_SHORT).show()
+            // Optionally hide the FABs after action
+            fabGroupChat.visibility = View.GONE
+            fabAddFriend.visibility = View.GONE
+        }
+
+        // Handle Add Friend click
+        fabAddFriend.setOnClickListener {
+            // Handle the logic for adding a friend (e.g., navigate to a new screen)
+            Toast.makeText(this, "Add Friend", Toast.LENGTH_SHORT).show()
+            // Optionally hide the FABs after action
+            fabGroupChat.visibility = View.GONE
+            fabAddFriend.visibility = View.GONE
+        }
+
+
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -184,5 +234,25 @@ class MainActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.nav_logout -> {
+                val sharedPref = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
+                with(sharedPref.edit()) {
+                    clear()
+                    apply()
+                }
+
+                val intent = Intent(this, LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+
+                finish()
+                return true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
     }
 }
