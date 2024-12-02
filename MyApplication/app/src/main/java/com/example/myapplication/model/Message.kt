@@ -13,8 +13,8 @@ data class Message(
     val privateChat: Boolean? = true,
     val status: String? = "ACTIVE",
 
-    val content: String? = "sth",
-    val isFromOpponent: Boolean, // true for opponent, false for user
+    val content: String? = "",
+    val isFromOpponent: Boolean,
     val sender: Int? = null,
     val conversationId: Int? = null,
 )

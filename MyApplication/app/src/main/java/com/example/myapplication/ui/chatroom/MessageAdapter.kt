@@ -9,6 +9,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.myapplication.R
 import com.example.myapplication.model.Message
 
@@ -31,9 +32,23 @@ class MessageAdapter(
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val messageTextView: TextView = itemView.findViewById(R.id.tv_message)
         private val avatarImageView: ImageView = itemView.findViewById(R.id.ivAvatar)
+        private val imageMessageView: ImageView = itemView.findViewById(R.id.iv_image_message) // ImageView for displaying images
 
         fun bind(message: Message) {
-            messageTextView.text = message.content
+            // Check if the message content is a URL (image link)
+            if (isValidImageUrl(message.content.toString())) {
+                // If it's an image URL, load the image
+                messageTextView.visibility = View.GONE
+                imageMessageView.visibility = View.VISIBLE
+                Glide.with(itemView.context)
+                    .load(message.content)
+                    .into(imageMessageView)
+            } else {
+                // If it's a text message
+                messageTextView.visibility = View.VISIBLE
+                imageMessageView.visibility = View.GONE
+                messageTextView.text = message.content
+            }
 
             // Align message based on sender
             val layoutParams = messageTextView.layoutParams as ViewGroup.MarginLayoutParams
@@ -58,6 +73,10 @@ class MessageAdapter(
             }
             messageTextView.layoutParams = layoutParams
         }
+
+        // Helper function to check if the URL is a valid image URL
+        private fun isValidImageUrl(url: String): Boolean {
+            return url.startsWith("https://") && (url.endsWith(".jpg") || url.endsWith(".png") || url.endsWith(".jpeg"))
+        }
     }
 }
-
