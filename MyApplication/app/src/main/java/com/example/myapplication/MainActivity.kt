@@ -147,9 +147,7 @@ class MainActivity : AppCompatActivity() {
                     cookie = "$accessToken"
                 )
 
-                Log.d("INFO", response.toString())
-
-                // Map API response to ChatRoom model
+                // If chat rooms exist, update the UI with the existing ones
                 val chatRooms = response.content.map { message ->
                     val participant = message.participants?.find { it.userId == userId }
                     val username = participant?.conversationDisplayName ?: ""
@@ -157,13 +155,27 @@ class MainActivity : AppCompatActivity() {
                     val messages = message.chatMessages ?: emptyList()
                     val conversationId = participant?.conversationId
 
-                    ChatRoom(username=username, lastMessage=lastMessage, conversationId=conversationId, messages=messages)
+                    ChatRoom(username = username, lastMessage = lastMessage, conversationId = conversationId, messages = messages)
                 }
 
-                println(chatRooms)
+                if (chatRooms.isEmpty() && phone != null) {
+                    // If no chat rooms found and phone is provided, call findUser to create a new chat room
+                    val userResponse = apiRepository.findUser(phone)
+//                    val username = userResponse.content.UserName ?: "Unknown"
 
-                withContext(Dispatchers.Main) {
-                    chatRoomAdapter.updateChatRooms(chatRooms)
+                    val newChatRooms = userResponse.content.map { user ->
+                        val username = user.UserName
+                        ChatRoom(username = username, lastMessage = null, conversationId = null, messages = emptyList())
+                    }
+                    // Add the newly created chat room
+                    withContext(Dispatchers.Main) {
+                        chatRoomAdapter.updateChatRooms(newChatRooms)
+                    }
+                } else {
+                    // Otherwise, update the chat rooms with the fetched data
+                    withContext(Dispatchers.Main) {
+                        chatRoomAdapter.updateChatRooms(chatRooms)
+                    }
                 }
             } catch (e: Exception) {
                 e.message?.let { Log.e("", it) }
@@ -173,6 +185,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun openChatRoom(chatRoom: ChatRoom) {
         val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
@@ -227,6 +240,7 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
         })
+
 
         return true
     }

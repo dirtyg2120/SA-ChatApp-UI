@@ -18,15 +18,15 @@
         android:padding="12dp">
 
         <!-- Avatar Image -->
-<!--        <ImageView-->
-<!--            android:id="@+id/ivAvatar"-->
-<!--            android:layout_width="48dp"-->
-<!--            android:layout_height="48dp"-->
-<!--            android:src="@drawable/ic_avatar_placeholder"-->
-<!--            android:layout_marginEnd="12dp"-->
-<!--            android:contentDescription="User Avatar"-->
-<!--            android:scaleType="centerCrop"-->
-<!--            android:background="@drawable/avatar_circle_bg" />-->
+        <ImageView
+            android:id="@+id/ivAvatar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_avatar_default"
+            android:layout_marginEnd="12dp"
+            android:contentDescription="User Avatar"
+            android:scaleType="centerCrop"
+            android:background="@drawable/avatar_circle_bg" />
 
         <!-- Chat Details -->
         <LinearLayout
@@ -66,6 +66,16 @@
             android:textSize="12sp"
             android:layout_gravity="top"
             android:text="12:00 PM" />
+
+        <Button
+            android:id="@+id/btnAddFriend"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:text="Add Friend"
+            android:visibility="gone"
+            android:layout_gravity="center_vertical"
+            android:textColor="@android:color/white"
+            android:background="@drawable/ic_add_friend" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

@@ -3,6 +3,8 @@ package com.example.myapplication.api
 import com.example.myapplication.model.FetchMessagesRequest
 import com.example.myapplication.model.FetchMessagesResponse
 import com.example.myapplication.model.FileUploadResponse
+import com.example.myapplication.model.FindUserRequest
+import com.example.myapplication.model.FindUserResponse
 import com.example.myapplication.model.GenerateConversationRequest
 import com.example.myapplication.model.GenerateConversationResponse
 import com.example.myapplication.model.LoginRequest
@@ -62,6 +64,12 @@ interface ApiService {
         @Part("extension") extension: RequestBody,
         @Part file: MultipartBody.Part
     ): FileUploadResponse
+
+    @POST("api/user/find")
+    @Headers("Content-Type: application/json")
+    suspend fun findUser(
+        @Body request: FindUserRequest
+    ): FindUserResponse
 }
 
 

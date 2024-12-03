@@ -3,6 +3,8 @@ package com.example.myapplication.api
 import com.example.myapplication.model.FetchMessagesRequest
 import com.example.myapplication.model.FetchMessagesResponse
 import com.example.myapplication.model.FileUploadResponse
+import com.example.myapplication.model.FindUserRequest
+import com.example.myapplication.model.FindUserResponse
 import com.example.myapplication.model.GenerateConversationRequest
 import com.example.myapplication.model.GenerateConversationResponse
 import com.example.myapplication.model.LoginRequest
@@ -42,5 +44,10 @@ class ApiRepository(private val apiService: ApiService) {
         val userIdRequest = RequestBody.create(MultipartBody.FORM, userId.toString())
         val extensionRequest = RequestBody.create(MultipartBody.FORM, extension)
         return apiService.updateAvatar(userIdRequest, extensionRequest, file)
+    }
+
+    suspend fun findUser(phone: String): FindUserResponse {
+        val request = FindUserRequest(phone)
+        return apiService.findUser(request)
     }
 }
