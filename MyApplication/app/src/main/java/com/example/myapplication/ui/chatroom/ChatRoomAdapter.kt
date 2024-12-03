@@ -12,7 +12,8 @@ import com.example.myapplication.databinding.ItemChatRoomBinding
 
 class ChatRoomAdapter(
     private var chatRooms: List<ChatRoom>,
-    private val onChatRoomClick: (ChatRoom) -> Unit
+    private val onChatRoomClick: (ChatRoom) -> Unit,
+    private val onAddFriendClick: (ChatRoom) -> Unit // Add the callback for add friend
 ) : RecyclerView.Adapter<ChatRoomAdapter.ChatViewHolder>() {
 
     private var selectedPosition = -1
@@ -41,7 +42,7 @@ class ChatRoomAdapter(
 
     override fun getItemCount(): Int = chatRooms.size
 
-    class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val tvUsername: TextView = itemView.findViewById(R.id.tvUsername)
         private val tvMessage: TextView = itemView.findViewById(R.id.tvMessage)
         private val tvTimestamp: TextView = itemView.findViewById(R.id.tvTimestamp)
@@ -51,14 +52,11 @@ class ChatRoomAdapter(
             tvUsername.text = chatRoom.username
             tvMessage.text = chatRoom.lastMessage
 
-            // Glide.with(itemView.context).load(message.avatarUrl).into(avatarImageView)
-
             if (chatRoom.conversationId == null) {
                 tvTimestamp.visibility = View.GONE
                 btnAddFriend.visibility = View.VISIBLE
                 btnAddFriend.setOnClickListener {
-                    // Handle add friend action (e.g., open a dialog or navigate to another screen)
-                    // You can implement the add friend functionality here
+                    onAddFriendClick(chatRoom)
                     Toast.makeText(itemView.context, "Adding Friend: ${chatRoom.username}", Toast.LENGTH_SHORT).show()
                 }
             } else {
@@ -79,3 +77,4 @@ class ChatRoomAdapter(
         notifyDataSetChanged()
     }
 }
+

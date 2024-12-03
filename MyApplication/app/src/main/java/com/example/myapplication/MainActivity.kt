@@ -114,9 +114,15 @@ class MainActivity : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        chatRoomAdapter = ChatRoomAdapter(emptyList()) { chatRoom ->
-            openChatRoom(chatRoom)
-        }
+        chatRoomAdapter = ChatRoomAdapter(
+            chatRooms = emptyList(),
+            onChatRoomClick = { chatRoom ->
+                openChatRoom(chatRoom)
+            },
+            onAddFriendClick = { chatRoom ->
+                handleAddFriendClick(chatRoom)
+            }
+        )
         recyclerView.adapter = chatRoomAdapter
         fetchChatRooms()
     }
@@ -161,11 +167,10 @@ class MainActivity : AppCompatActivity() {
                 if (chatRooms.isEmpty() && phone != null) {
                     // If no chat rooms found and phone is provided, call findUser to create a new chat room
                     val userResponse = apiRepository.findUser(phone)
-//                    val username = userResponse.content.UserName ?: "Unknown"
-
                     val newChatRooms = userResponse.content.map { user ->
+                        val userId = user.id
                         val username = user.UserName
-                        ChatRoom(username = username, lastMessage = null, conversationId = null, messages = emptyList())
+                        ChatRoom(username = username, lastMessage = null, conversationId = null, messages = emptyList(), userId = userId)
                     }
                     // Add the newly created chat room
                     withContext(Dispatchers.Main) {
@@ -267,6 +272,33 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
             else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun handleAddFriendClick(chatRoom: ChatRoom) {
+        val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
+        val adminId = sharedPreferences.getInt("userId", 1)
+        val opponentUserId = chatRoom.userId
+        if (opponentUserId != null) {
+            createConversation(adminId, opponentUserId)
+        }
+    }
+
+    private fun createConversation(adminId: Int, opponentUserId: Int) {
+        val participants = listOf(opponentUserId)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                apiRepository.generateConversation(adminId, participants, null)
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Friend added successfully!", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
         }
     }
 }

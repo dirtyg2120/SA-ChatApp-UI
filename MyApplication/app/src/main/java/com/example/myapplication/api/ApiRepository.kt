@@ -35,7 +35,7 @@ class ApiRepository(private val apiService: ApiService) {
         return apiService.signUp(cookie, request)
     }
 
-    suspend fun generateConversation(adminId: Int, participants: List<Int>, conversationName: String): GenerateConversationResponse {
+    suspend fun generateConversation(adminId: Int, participants: List<Int>, conversationName: String?): GenerateConversationResponse {
         val request = GenerateConversationRequest(adminId, participants, conversationName)
         return apiService.generateConversation(request)
     }
