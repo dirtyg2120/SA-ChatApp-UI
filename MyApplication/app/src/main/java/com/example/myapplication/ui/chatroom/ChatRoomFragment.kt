@@ -304,7 +304,7 @@ class ChatRoomFragment : Fragment() {
 
             return getDataColumn(context, contentUri, selection, selectionArgs)
         } else if ("content" == uri.scheme) {
-            // Handle content URIs (e.g., images in gallery)
+            // Handle content URIs (e.g., images in profile)
             return getDataColumn(context, uri, null, null)
         } else if ("file" == uri.scheme) {
             // Handle file URIs (direct paths)
