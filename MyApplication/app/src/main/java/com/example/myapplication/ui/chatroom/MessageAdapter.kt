@@ -1,7 +1,5 @@
 package com.example.myapplication.ui.chatroom
 
-import android.content.Intent
-import android.net.Uri
 import android.text.Spannable
 import android.text.method.LinkMovementMethod
 import android.text.style.URLSpan
@@ -69,15 +67,15 @@ class MessageAdapter(
                 imageMessageView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_partner)
                 layoutParams.marginStart = 16
                 layoutParams.marginEnd = 64
-//                parentLayout.gravity = Gravity.START
+                parentLayout.gravity = Gravity.START
                 avatarImageView.visibility = View.VISIBLE
             } else {
                 // User's message: Right align
                 messageTextView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_user)
                 imageMessageView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_user)
-                layoutParams.marginStart = 640
+                layoutParams.marginStart = 64
                 layoutParams.marginEnd = 16
-//                parentLayout.gravity = Gravity.END
+                parentLayout.gravity = Gravity.END
                 avatarImageView.visibility = View.GONE
             }
             messageTextView.layoutParams = layoutParams
