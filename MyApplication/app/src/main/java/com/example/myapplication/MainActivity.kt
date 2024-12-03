@@ -59,55 +59,32 @@ class MainActivity : AppCompatActivity() {
         // Initialize the FABs
         fab = findViewById(R.id.fab)
         fabGroupChat = findViewById(R.id.fab_group_chat)
-        fabAddFriend = findViewById(R.id.fab_add_friend)
-
-        // Initially hide the secondary FABs
         fabGroupChat.visibility = View.GONE
-        fabAddFriend.visibility = View.GONE
-
-        // Main FAB click listener to toggle visibility of additional FABs
         fab.setOnClickListener {
             if (fabGroupChat.visibility == View.GONE) {
-                // Show additional FABs
                 fabGroupChat.visibility = View.VISIBLE
-                fabAddFriend.visibility = View.VISIBLE
             } else {
-                // Hide additional FABs
                 fabGroupChat.visibility = View.GONE
-                fabAddFriend.visibility = View.GONE
             }
         }
 
         // Handle Create Group Chat click
         fabGroupChat.setOnClickListener {
-            // Handle the logic for creating a group chat (e.g., navigate to a new screen)
             Toast.makeText(this, "Create Group Chat", Toast.LENGTH_SHORT).show()
-            // Optionally hide the FABs after action
             fabGroupChat.visibility = View.GONE
-            fabAddFriend.visibility = View.GONE
         }
-
-        // Handle Add Friend click
-        fabAddFriend.setOnClickListener {
-            // Handle the logic for adding a friend (e.g., navigate to a new screen)
-            Toast.makeText(this, "Add Friend", Toast.LENGTH_SHORT).show()
-            // Optionally hide the FABs after action
-            fabGroupChat.visibility = View.GONE
-            fabAddFriend.visibility = View.GONE
-        }
-
 
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         appBarConfiguration = AppBarConfiguration(
             setOf(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_settings
+                R.id.nav_home, R.id.nav_profile, R.id.nav_settings
             ), drawerLayout
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-        setupChatRecyclerView()
+//        setupChatRecyclerView()
     }
 
     private fun setupChatRecyclerView() {

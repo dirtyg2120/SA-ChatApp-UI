@@ -31,21 +31,6 @@
         android:layout_marginBottom="16dp"
         app:srcCompat="@android:drawable/ic_input_add"
         app:maxImageSize="48dp"
-        app:tint="@color/white"/> <!-- Initially hidden -->
-
-    <!-- FAB for Add Friend (Expanded State) -->
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/fab_add_friend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginBottom="135dp"
-        android:text="Add new friend"
-        android:textColor="@color/white"
-        app:icon="@android:drawable/ic_input_add"
-        app:iconTint="@color/white"
-        app:maxImageSize="48dp"
         app:tint="@color/white"/>
 
     <!-- FAB for Create Group Chat (Expanded State) -->
