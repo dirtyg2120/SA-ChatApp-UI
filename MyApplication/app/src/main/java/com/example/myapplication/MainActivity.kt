@@ -251,8 +251,6 @@ class MainActivity : AppCompatActivity() {
                 return true
             }
         })
-
-
         return true
     }
 
