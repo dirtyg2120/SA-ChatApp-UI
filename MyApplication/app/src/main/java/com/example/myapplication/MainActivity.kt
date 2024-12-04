@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.SearchView
 import android.widget.Toast
+import androidx.activity.addCallback
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -42,7 +43,6 @@ class MainActivity : AppCompatActivity() {
     private val apiRepository = ApiRepository(RetrofitInstance.apiService)
     private lateinit var fab: FloatingActionButton
     private lateinit var fabGroupChat: ExtendedFloatingActionButton
-    private lateinit var fabAddFriend: ExtendedFloatingActionButton
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,10 +52,14 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
-        // Initialize the FABs
+        // Initialize the FABs and set up their click logic
         fab = findViewById(R.id.fab)
         fabGroupChat = findViewById(R.id.fab_group_chat)
+
+        fab.visibility = View.VISIBLE
         fabGroupChat.visibility = View.GONE
+
+        // FAB click logic to show/hide group chat FAB
         fab.setOnClickListener {
             if (fabGroupChat.visibility == View.GONE) {
                 fabGroupChat.visibility = View.VISIBLE
@@ -64,12 +68,14 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Handle Create Group Chat click
         fabGroupChat.setOnClickListener {
-            Toast.makeText(this, "Create Group Chat", Toast.LENGTH_SHORT).show()
             fabGroupChat.visibility = View.GONE
+            fab.visibility = View.GONE
+            val navController = findNavController(R.id.nav_host_fragment_content_main)
+            navController.navigate(R.id.fragmentGroupChat)
         }
 
+        // Drawer and Navigation View setup
         val drawerLayout: DrawerLayout = binding.drawerLayout
         val navView: NavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_content_main)
@@ -80,29 +86,37 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+
+        // Initialize RecyclerView for chat rooms
         setupChatRecyclerView()
+
+        // Handling changes in the destination fragment
         navController.addOnDestinationChangedListener { _, destination, _ ->
             val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
             val params = recyclerView.layoutParams
 
             when (destination.id) {
                 R.id.nav_home -> {
+                    // When navigating to home, set RecyclerView height to full screen
                     params.height = ConstraintLayout.LayoutParams.MATCH_PARENT
                     recyclerView.layoutParams = params
+
+                    fab.visibility = View.VISIBLE
+                    fabGroupChat.visibility = View.GONE  // Optionally, keep group chat FAB hidden
                 }
                 R.id.nav_profile -> {
                     params.height = 1
                     recyclerView.layoutParams = params
                 }
                 else -> {
-                    // Hide RecyclerView for other fragments (optional)
                     params.height = 1
                     recyclerView.layoutParams = params
                 }
             }
         }
-
     }
+
+
 
     private fun setupChatRecyclerView() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
@@ -292,5 +306,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun setupFABs() {
+
     }
 }

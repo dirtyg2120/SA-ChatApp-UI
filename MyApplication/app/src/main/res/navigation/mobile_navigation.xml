@@ -17,9 +17,15 @@
         android:label="@string/menu_profile"
         tools:layout="@layout/fragment_profile" />
 
+<!--    <fragment-->
+<!--        android:id="@+id/nav_settings"-->
+<!--        android:name="com.example.myapplication.ui.settings.SettingsFragment"-->
+<!--        android:label="@string/menu_settings"-->
+<!--        tools:layout="@layout/fragment_settings" />-->
+
     <fragment
-        android:id="@+id/nav_settings"
-        android:name="com.example.myapplication.ui.settings.SettingsFragment"
-        android:label="@string/menu_settings"
-        tools:layout="@layout/fragment_settings" />
+        android:id="@+id/fragmentGroupChat"
+        android:name="com.example.myapplication.ui.chatroom.FragmentGroupChat"
+        android:label="Group Chat"
+        tools:layout="@layout/fragment_group_chat" />
 </navigation>
