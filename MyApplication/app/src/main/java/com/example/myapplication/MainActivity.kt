@@ -52,28 +52,7 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
-        // Initialize the FABs and set up their click logic
-        fab = findViewById(R.id.fab)
-        fabGroupChat = findViewById(R.id.fab_group_chat)
-
-        fab.visibility = View.VISIBLE
-        fabGroupChat.visibility = View.GONE
-
-        // FAB click logic to show/hide group chat FAB
-        fab.setOnClickListener {
-            if (fabGroupChat.visibility == View.GONE) {
-                fabGroupChat.visibility = View.VISIBLE
-            } else {
-                fabGroupChat.visibility = View.GONE
-            }
-        }
-
-        fabGroupChat.setOnClickListener {
-            fabGroupChat.visibility = View.GONE
-            fab.visibility = View.GONE
-            val navController = findNavController(R.id.nav_host_fragment_content_main)
-            navController.navigate(R.id.fragmentGroupChat)
-        }
+        setupFABs()
 
         // Drawer and Navigation View setup
         val drawerLayout: DrawerLayout = binding.drawerLayout
@@ -117,7 +96,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     private fun setupChatRecyclerView() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -156,6 +134,7 @@ class MainActivity : AppCompatActivity() {
                     participantUserIds = userId,
                     phone = phone,
                     name = name,
+                    privateChat = null,
                     cookie = "$accessToken"
                 )
 
@@ -289,7 +268,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createConversation(adminId: Int, opponentUserId: Int) {
-        val participants = listOf(opponentUserId)
+        val participants = listOf(opponentUserId) + adminId
 
         CoroutineScope(Dispatchers.IO).launch {
             try {
@@ -307,6 +286,27 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupFABs() {
+        // Initialize the FABs and set up their click logic
+        fab = findViewById(R.id.fab)
+        fabGroupChat = findViewById(R.id.fab_group_chat)
 
+        fab.visibility = View.VISIBLE
+        fabGroupChat.visibility = View.GONE
+
+        // FAB click logic to show/hide group chat FAB
+        fab.setOnClickListener {
+            if (fabGroupChat.visibility == View.GONE) {
+                fabGroupChat.visibility = View.VISIBLE
+            } else {
+                fabGroupChat.visibility = View.GONE
+            }
+        }
+
+        fabGroupChat.setOnClickListener {
+            fabGroupChat.visibility = View.GONE
+            fab.visibility = View.GONE
+            val navController = findNavController(R.id.nav_host_fragment_content_main)
+            navController.navigate(R.id.fragmentGroupChat)
+        }
     }
 }

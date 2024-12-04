@@ -14,6 +14,8 @@ class GroupAdapter(
     private val onFriendSelect: (ChatRoom, Boolean) -> Unit
 ) : RecyclerView.Adapter<GroupAdapter.FriendViewHolder>() {
 
+    private val selectedFriendIds = mutableSetOf<Int>()
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FriendViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_chat_group, parent, false)
         return FriendViewHolder(view)
@@ -32,7 +34,14 @@ class GroupAdapter(
 
         fun bind(friend: ChatRoom) {
             tvFriendName.text = friend.username
+            checkboxSelectFriend.isChecked = selectedFriendIds.contains(friend.userId)
+
             checkboxSelectFriend.setOnCheckedChangeListener { _, isChecked ->
+                if (isChecked) {
+                    friend.userId?.let { selectedFriendIds.add(it) }
+                } else {
+                    friend.userId?.let { selectedFriendIds.remove(it) }
+                }
                 onFriendSelect(friend, isChecked)
             }
         }
@@ -41,5 +50,9 @@ class GroupAdapter(
     fun updateFriends(newFriends: List<ChatRoom>) {
         friends = newFriends
         notifyDataSetChanged()
+    }
+
+    fun getSelectedFriendIds(): MutableList<Int> {
+        return selectedFriendIds.toMutableList()
     }
 }

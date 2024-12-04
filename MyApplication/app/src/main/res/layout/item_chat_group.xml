@@ -53,8 +53,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:focusable="false"
-            android:clickable="false" />
+            android:focusable="true"
+            android:clickable="true" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

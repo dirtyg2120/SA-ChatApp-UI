@@ -4,6 +4,7 @@ data class FetchMessagesRequest(
     val participantUserIds: List<Int>,
     val phone: String? = null,
     val name: String? = null,
+    val privateChat: Boolean? = null
 //    val conversationId: Int,
 //    val page: Int,
 //    val pageSize: Int
