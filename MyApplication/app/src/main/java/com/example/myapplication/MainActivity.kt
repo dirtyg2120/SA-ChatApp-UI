@@ -16,6 +16,8 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.GravityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.api.ApiRepository
@@ -50,12 +52,6 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.appBarMain.toolbar)
 
-//        binding.appBarMain.fab.setOnClickListener { view ->
-//            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                .setAction("Action", null)
-//                .setAnchorView(R.id.fab).show()
-//        }
-
         // Initialize the FABs
         fab = findViewById(R.id.fab)
         fabGroupChat = findViewById(R.id.fab_group_chat)
@@ -84,7 +80,28 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
-//        setupChatRecyclerView()
+        setupChatRecyclerView()
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
+            val params = recyclerView.layoutParams
+
+            when (destination.id) {
+                R.id.nav_home -> {
+                    params.height = ConstraintLayout.LayoutParams.MATCH_PARENT
+                    recyclerView.layoutParams = params
+                }
+                R.id.nav_profile -> {
+                    params.height = 1
+                    recyclerView.layoutParams = params
+                }
+                else -> {
+                    // Hide RecyclerView for other fragments (optional)
+                    params.height = 1
+                    recyclerView.layoutParams = params
+                }
+            }
+        }
+
     }
 
     private fun setupChatRecyclerView() {
@@ -106,8 +123,6 @@ class MainActivity : AppCompatActivity() {
 
     // Function to fetch chat rooms after login or initialization
     fun fetchChatRooms(phone: String? = null, name: String? = null) {
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
-
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 // Retrieve the access token from SharedPreferences
