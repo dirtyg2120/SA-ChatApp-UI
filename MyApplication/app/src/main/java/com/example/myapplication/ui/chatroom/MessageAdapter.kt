@@ -98,7 +98,7 @@ class MessageAdapter(
             spannable.setSpan(span, 0, url.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             messageTextView.text = spannable
             messageTextView.movementMethod = LinkMovementMethod.getInstance()
-//            messageTextView.setLinkTextColor(ContextCompat.getColor(itemView.context, R.color.blue))
+            messageTextView.setLinkTextColor(ContextCompat.getColor(itemView.context, R.color.purple_700))
         }
     }
 }

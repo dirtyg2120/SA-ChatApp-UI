@@ -46,7 +46,7 @@ class ApiRepository(private val apiService: ApiService) {
         return apiService.updateAvatar(userIdRequest, extensionRequest, file)
     }
 
-    suspend fun findUser(phone: String): FindUserResponse {
+    suspend fun findUser(phone: String?): FindUserResponse {
         val request = FindUserRequest(phone)
         return apiService.findUser(request)
     }

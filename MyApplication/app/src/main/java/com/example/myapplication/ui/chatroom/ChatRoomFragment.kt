@@ -157,7 +157,7 @@ class ChatRoomFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 // Connect to WebSocket server
-                session = client.webSocketSession(host = "128.199.91.226", port = 8082, path = "text")
+                session = client.webSocketSession(host = "157.245.156.156", port = 8082, path = "text")
                 isSessionConnected = true
                 Log.d("WebSocket", "Connected to WebSocket")
 
@@ -232,7 +232,7 @@ class ChatRoomFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 session.close()
-                session = client.webSocketSession(host = "128.199.91.226", port = 8082, path = "text")
+                session = client.webSocketSession(host = "157.245.156.156", port = 8082, path = "text")
                 Log.d("WebSocket", "Reconnected to WebSocket")
             } catch (e: Exception) {
                 Log.e("WebSocket", "Error reconnecting to WebSocket: ${e.localizedMessage}")
