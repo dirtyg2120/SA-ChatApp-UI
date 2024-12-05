@@ -76,20 +76,23 @@ class MainActivity : AppCompatActivity() {
 
             when (destination.id) {
                 R.id.nav_home -> {
-                    // When navigating to home, set RecyclerView height to full screen
                     params.height = ConstraintLayout.LayoutParams.MATCH_PARENT
                     recyclerView.layoutParams = params
 
                     fab.visibility = View.VISIBLE
-                    fabGroupChat.visibility = View.GONE  // Optionally, keep group chat FAB hidden
+                    fabGroupChat.visibility = View.GONE
                 }
                 R.id.nav_profile -> {
                     params.height = 1
                     recyclerView.layoutParams = params
+                    fab.visibility = View.GONE
+                    fabGroupChat.visibility = View.GONE
                 }
                 else -> {
                     params.height = 1
                     recyclerView.layoutParams = params
+                    fab.visibility = View.GONE
+                    fabGroupChat.visibility = View.GONE
                 }
             }
         }

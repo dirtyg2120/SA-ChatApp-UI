@@ -30,6 +30,8 @@
         android:layout_marginEnd="@dimen/fab_margin"
         android:layout_marginBottom="16dp"
         android:backgroundTint="@color/purple_500"
+        android:contentDescription="fab"
+        android:visibility="gone"
         app:srcCompat="@android:drawable/ic_input_add"
         app:maxImageSize="48dp"
         app:tint="@color/white"/>
