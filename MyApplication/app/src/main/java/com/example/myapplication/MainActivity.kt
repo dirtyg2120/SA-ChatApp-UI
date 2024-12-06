@@ -150,10 +150,11 @@ class MainActivity : AppCompatActivity() {
                     val participant = message.participants?.find { it.userId == userId }
                     val username = participant?.conversationDisplayName ?: ""
                     val lastMessage = message.chatMessages?.lastOrNull()?.content ?: ""
+                    val lastMessageTime = message.lastMessageTime?.dropLast(9) ?: ""
                     val messages = message.chatMessages ?: emptyList()
                     val conversationId = participant?.conversationId
 
-                    ChatRoom(username = username, lastMessage = lastMessage, conversationId = conversationId, messages = messages)
+                    ChatRoom(username = username, lastMessage = lastMessage, conversationId = conversationId, messages = messages, lastMessageTime=lastMessageTime)
                 }
 
                 if (chatRooms.isEmpty() && phone != null) {

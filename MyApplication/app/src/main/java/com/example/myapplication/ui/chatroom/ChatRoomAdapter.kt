@@ -51,6 +51,7 @@ class ChatRoomAdapter(
         fun bind(chatRoom: ChatRoom) {
             tvUsername.text = chatRoom.username
             tvMessage.text = chatRoom.lastMessage
+            tvTimestamp.text = chatRoom.lastMessageTime
 
             if (chatRoom.conversationId == null) {
                 tvTimestamp.visibility = View.GONE

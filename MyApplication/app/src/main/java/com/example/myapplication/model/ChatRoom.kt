@@ -8,7 +8,8 @@ data class ChatRoom(
     val lastMessage: String? = "",
     val conversationId: Int? = null,
     val messages: List<ChatMessage> = emptyList(),
-    val userId: Int? = null
+    val userId: Int? = null,
+    val lastMessageTime: String? = ""
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
