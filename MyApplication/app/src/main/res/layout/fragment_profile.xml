@@ -167,13 +167,17 @@
             android:textColor="@color/black"
             android:textStyle="bold" />
 
-        <TextView
+        <EditText
+            android:id="@+id/gender_edit_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Male"
             android:textSize="22sp"
             android:textColor="#666666"
-            android:layout_marginStart="16dp"/>
+            android:layout_marginStart="16dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
     </LinearLayout>
 
     <!-- Gray line -->
@@ -212,13 +216,17 @@
             android:textColor="@color/black"
             android:textStyle="bold" />
 
-        <TextView
+        <EditText
+            android:id="@+id/bday_edit_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="2000-11-22"
             android:textSize="22sp"
             android:textColor="#666666"
-            android:layout_marginStart="16dp"/>
+            android:layout_marginStart="16dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
     </LinearLayout>
 
     <!-- Gray line -->

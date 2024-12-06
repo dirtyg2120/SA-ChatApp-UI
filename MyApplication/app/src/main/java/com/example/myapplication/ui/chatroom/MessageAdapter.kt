@@ -34,7 +34,7 @@ class MessageAdapter(
 
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val messageTextView: TextView = itemView.findViewById(R.id.tv_message)
-        private val senderTextView: ImageView = itemView.findViewById(R.id.tv_sender_name)
+        private val senderTextView: TextView = itemView.findViewById(R.id.tv_sender_name)
         private val imageMessageView: ImageView = itemView.findViewById(R.id.iv_image_message) // ImageView for displaying images
 
         fun bind(conv: Conv) {
