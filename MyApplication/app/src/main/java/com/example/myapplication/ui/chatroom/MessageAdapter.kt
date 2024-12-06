@@ -34,7 +34,7 @@ class MessageAdapter(
 
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val messageTextView: TextView = itemView.findViewById(R.id.tv_message)
-        private val avatarImageView: ImageView = itemView.findViewById(R.id.ivAvatar)
+        private val senderTextView: ImageView = itemView.findViewById(R.id.tv_sender_name)
         private val imageMessageView: ImageView = itemView.findViewById(R.id.iv_image_message) // ImageView for displaying images
 
         fun bind(conv: Conv) {
@@ -68,7 +68,6 @@ class MessageAdapter(
                 layoutParams.marginStart = 16
                 layoutParams.marginEnd = 64
                 parentLayout.gravity = Gravity.START
-                avatarImageView.visibility = View.VISIBLE
             } else {
                 // User's message: Right align
                 messageTextView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_user)
@@ -76,7 +75,6 @@ class MessageAdapter(
                 layoutParams.marginStart = 64
                 layoutParams.marginEnd = 16
                 parentLayout.gravity = Gravity.END
-                avatarImageView.visibility = View.GONE
             }
             messageTextView.layoutParams = layoutParams
         }

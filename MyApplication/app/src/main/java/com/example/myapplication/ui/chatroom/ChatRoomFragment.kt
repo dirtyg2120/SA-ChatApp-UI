@@ -133,7 +133,6 @@ class ChatRoomFragment : Fragment() {
             chatRoom?.messages?.let { chatMessages ->
                 chatMessages.forEach { chatMessage ->
                     val isFromOpponent = if (chatMessage.sender == userId) false else true
-//                    val profilePhoto = chatRoom?.username
                     addMessage(content = chatMessage.content.toString(), isFromOpponent = isFromOpponent)
                 }
             }
