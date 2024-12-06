@@ -16,6 +16,7 @@ data class Conv(
     val content: String? = "",
     val isFromOpponent: Boolean,
     val sender: Int? = null,
+    val senderName: String? = null,
     val conversationId: Int? = null,
 )
 

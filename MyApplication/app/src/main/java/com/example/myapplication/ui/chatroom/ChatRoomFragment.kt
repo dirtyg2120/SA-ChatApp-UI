@@ -59,6 +59,7 @@ class ChatRoomFragment : Fragment() {
 
     private lateinit var messageAdapter: MessageAdapter
     private val convs = mutableListOf<Conv>()
+    private val userMapping = mutableMapOf<Int, String>()
 
     // WebSocket client setup
     private val client = HttpClient(CIO) {
@@ -92,6 +93,31 @@ class ChatRoomFragment : Fragment() {
         }
     }
 
+    private fun fetchUsers() {
+        lifecycleScope.launch {
+            try {
+                val users = ApiRepository(RetrofitInstance.apiService).findUser(phone = null)
+                users.content.forEach { user ->
+                    userMapping[user.id] = user.UserName
+                }
+                updateMessages()
+            } catch (e: Exception) {
+                Log.e("ChatRoomFragment", "Error fetching users: ${e.message}")
+            }
+        }
+    }
+
+    private fun updateMessages() {
+        chatRoom?.messages?.let { chatMessages ->
+            chatMessages.forEach { chatMessage ->
+                val isFromOpponent = chatMessage.sender != userId
+                val name = userMapping[chatMessage.sender] ?: "Unknown"
+                addMessage(content = chatMessage.content.toString(), isFromOpponent = isFromOpponent, name = name)
+            }
+        }
+    }
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -102,6 +128,7 @@ class ChatRoomFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         arguments?.let {
             userId = it.getInt(ARG_USER_ID)
             conversationId = it.getInt(ARG_CONVERSATION_ID)
@@ -126,24 +153,24 @@ class ChatRoomFragment : Fragment() {
         binding.rvMessages.adapter = messageAdapter
         binding.rvMessages.layoutManager = LinearLayoutManager(context)
 
-        arguments?.getParcelable<ChatRoom>(ARG_CHAT_ROOM)?.let {
-            chatRoom = it
-            // Convert ChatMessage to Message and assign to messages
-            convs.clear()
-            chatRoom?.messages?.let { chatMessages ->
-                chatMessages.forEach { chatMessage ->
-                    val isFromOpponent = if (chatMessage.sender == userId) false else true
-                    addMessage(content = chatMessage.content.toString(), isFromOpponent = isFromOpponent)
-                }
-            }
-        }
+        fetchUsers()
+//        arguments?.getParcelable<ChatRoom>(ARG_CHAT_ROOM)?.let {
+//            chatRoom = it
+//            convs.clear()
+//            chatRoom?.messages?.let { chatMessages ->
+//                chatMessages.forEach { chatMessage ->
+//                    val isFromOpponent = chatMessage.sender != userId
+//                    val name = userMapping[chatMessage.sender] ?: "Unknown"
+//                    addMessage(content = chatMessage.content.toString(), isFromOpponent = isFromOpponent, name = name)
+//                }
+//            }
+//        }
 
 
         // Handle "Send" button click
         binding.btnSend.setOnClickListener {
             val message = binding.etMessage.text.toString().trim()
             if (message.isNotEmpty()) {
-                println(isSessionInitialized)
                 if (!isSessionInitialized) {
                     sendMessageOverWebSocket(userId, "INIT_SESSION")
                     isSessionInitialized = true
@@ -204,7 +231,10 @@ class ChatRoomFragment : Fragment() {
         try {
             val message = gson.fromJson(jsonMessage, WebSocketMessage::class.java)
             Log.d("WebSocket", "Parsed message: $message")
-            message.content?.let { addMessage(it, isFromOpponent = true) }
+            val senderName = userMapping[message.senderId] ?: "Unknown Sender"
+            message.content?.let {
+                addMessage(content = it, isFromOpponent = true, name = senderName)
+            }
         } catch (e: Exception) {
             Log.e("WebSocket", "Error parsing incoming message: ${e.localizedMessage}")
         }
@@ -257,8 +287,8 @@ class ChatRoomFragment : Fragment() {
         }
     }
 
-    private fun addMessage(content: String, isFromOpponent: Boolean) {
-        convs.add(Conv(content = content, isFromOpponent = isFromOpponent))
+    private fun addMessage(content: String, isFromOpponent: Boolean, name: String?="") {
+        convs.add(Conv(content = content, isFromOpponent = isFromOpponent, senderName=name))
         messageAdapter.notifyItemInserted(convs.size - 1)
         binding.rvMessages.scrollToPosition(convs.size - 1)
     }
