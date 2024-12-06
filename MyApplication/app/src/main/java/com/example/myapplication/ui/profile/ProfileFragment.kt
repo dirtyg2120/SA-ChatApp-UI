@@ -1,7 +1,5 @@
 package com.example.myapplication.ui.profile
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -90,8 +88,6 @@ class ProfileFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 val userResponse = apiRepository.findUser(phone)
-
-                // Find the user with the matching user_id
                 val user = userResponse.content.find { it.id == userId }
 
                 user?.let {

@@ -74,6 +74,17 @@ class ChatRoomFragment : Fragment() {
         uri?.let { uploadFile(it) }
     }
 
+    // Camera capture launcher
+    private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+        if (isSuccess) {
+            uri?.let { uploadFile(it) }
+        } else {
+            Log.e("Camera", "Failed to capture image.")
+        }
+    }
+
+    private var uri: Uri? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -146,6 +157,12 @@ class ChatRoomFragment : Fragment() {
         // Handle "Attach File" button click
         binding.btnAttachFile.setOnClickListener {
             pickFileLauncher.launch("image/*")
+        }
+
+        // Handle "Camera" button click
+        binding.btnCamera.setOnClickListener {
+            uri = Uri.fromFile(File(requireContext().cacheDir, "photo.jpg"))
+            takePictureLauncher.launch(uri)
         }
 
         // Connect to WebSocket
@@ -284,7 +301,7 @@ class ChatRoomFragment : Fragment() {
     }
 
 
-    fun getFilePath(context: Context, uri: Uri): String? {
+    private fun getFilePath(context: Context, uri: Uri): String? {
         // Check if the URI is a document URI (i.e., the file is in external storage)
         if (DocumentsContract.isDocumentUri(context, uri)) {
             // Get the document ID

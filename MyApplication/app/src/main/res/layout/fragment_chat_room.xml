@@ -40,7 +40,6 @@
         android:id="@+id/et_message"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginEnd="12dp"
         android:layout_marginBottom="8dp"
         android:backgroundTint="#DDDDDD"
         android:hint="Type your message"
@@ -48,7 +47,7 @@
         android:textColorHint="#888888"
         android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/btn_send"
+        app:layout_constraintEnd_toStartOf="@id/btn_attach_file"
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- Attach Button -->
@@ -58,9 +57,19 @@
         android:id="@+id/btn_attach_file"
         android:layout_width="30dp"
         android:layout_height="30dp"
-        android:layout_marginEnd="12dp"
         android:layout_marginBottom="16dp"
         android:background="@drawable/ic_attach_file"
+        android:contentDescription="Attach file"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_camera" />
+
+    <Button
+        android:id="@+id/btn_camera"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="16dp"
+        android:background="@android:drawable/ic_menu_camera"
         android:contentDescription="Attach file"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/btn_send" />
