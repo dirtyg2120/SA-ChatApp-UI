@@ -95,10 +95,16 @@ class ProfileFragment : Fragment() {
                         Glide.with(requireContext())
                             .load(profilePhotoUrl)
                             .into(binding.profileImage)
+                        Glide.with(requireContext())
+                            .load(profilePhotoUrl)
+                            .into(requireActivity().findViewById<ShapeableImageView>(R.id.imageAvaView))
                     } else {
                         Glide.with(requireContext())
                             .load(R.drawable.ic_avatar_default)
                             .into(binding.profileImage)
+                        Glide.with(requireContext())
+                            .load(R.drawable.ic_avatar_default)
+                            .into(requireActivity().findViewById<ShapeableImageView>(R.id.imageAvaView))
                     }
                 } ?: run {
                     // Handle case where user is not found (e.g., show an error message)
