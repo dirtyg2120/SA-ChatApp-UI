@@ -11,7 +11,7 @@ data class FetchMessagesRequest(
 )
 
 data class FetchMessagesResponse(
-    val content: List<Message>,
+    val content: List<Conv>,
     val pageable: Pageable,
     val totalElements: Int,
     val totalPages: Int,

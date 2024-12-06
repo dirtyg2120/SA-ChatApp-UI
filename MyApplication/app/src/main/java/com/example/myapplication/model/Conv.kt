@@ -3,7 +3,7 @@ package com.example.myapplication.model
 import android.os.Parcel
 import android.os.Parcelable
 
-data class Message(
+data class Conv(
     val id: Int? = null,
     val admin: Int? = null,
     val chatMessages: List<ChatMessage>? = emptyList(),

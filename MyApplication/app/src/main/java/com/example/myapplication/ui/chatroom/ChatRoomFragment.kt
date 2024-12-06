@@ -20,7 +20,7 @@ import com.example.myapplication.api.ApiRepository
 import com.example.myapplication.api.RetrofitInstance
 import com.example.myapplication.databinding.FragmentChatRoomBinding
 import com.example.myapplication.model.ChatRoom
-import com.example.myapplication.model.Message
+import com.example.myapplication.model.Conv
 import com.example.myapplication.model.WebSocketMessage
 import com.google.gson.Gson
 import io.ktor.client.*
@@ -58,7 +58,7 @@ class ChatRoomFragment : Fragment() {
     private val binding get() = _binding!!
 
     private lateinit var messageAdapter: MessageAdapter
-    private val messages = mutableListOf<Message>()
+    private val convs = mutableListOf<Conv>()
 
     // WebSocket client setup
     private val client = HttpClient(CIO) {
@@ -122,17 +122,18 @@ class ChatRoomFragment : Fragment() {
         }
 
         // Initialize RecyclerView
-        messageAdapter = MessageAdapter(messages)
+        messageAdapter = MessageAdapter(convs)
         binding.rvMessages.adapter = messageAdapter
         binding.rvMessages.layoutManager = LinearLayoutManager(context)
 
         arguments?.getParcelable<ChatRoom>(ARG_CHAT_ROOM)?.let {
             chatRoom = it
             // Convert ChatMessage to Message and assign to messages
-            messages.clear()
+            convs.clear()
             chatRoom?.messages?.let { chatMessages ->
                 chatMessages.forEach { chatMessage ->
                     val isFromOpponent = if (chatMessage.sender == userId) false else true
+//                    val profilePhoto = chatRoom?.username
                     addMessage(content = chatMessage.content.toString(), isFromOpponent = isFromOpponent)
                 }
             }
@@ -258,9 +259,9 @@ class ChatRoomFragment : Fragment() {
     }
 
     private fun addMessage(content: String, isFromOpponent: Boolean) {
-        messages.add(Message(content = content, isFromOpponent = isFromOpponent))
-        messageAdapter.notifyItemInserted(messages.size - 1)
-        binding.rvMessages.scrollToPosition(messages.size - 1)
+        convs.add(Conv(content = content, isFromOpponent = isFromOpponent))
+        messageAdapter.notifyItemInserted(convs.size - 1)
+        binding.rvMessages.scrollToPosition(convs.size - 1)
     }
 
     private fun uploadFile(uri: Uri) {

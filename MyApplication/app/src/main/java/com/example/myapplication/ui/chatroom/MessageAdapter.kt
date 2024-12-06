@@ -14,10 +14,10 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.myapplication.R
-import com.example.myapplication.model.Message
+import com.example.myapplication.model.Conv
 
 class MessageAdapter(
-    private val messages: List<Message>
+    private val convs: List<Conv>
 ) : RecyclerView.Adapter<MessageAdapter.MessageViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageViewHolder {
@@ -27,41 +27,41 @@ class MessageAdapter(
     }
 
     override fun onBindViewHolder(holder: MessageViewHolder, position: Int) {
-        holder.bind(messages[position])
+        holder.bind(convs[position])
     }
 
-    override fun getItemCount(): Int = messages.size
+    override fun getItemCount(): Int = convs.size
 
     class MessageViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val messageTextView: TextView = itemView.findViewById(R.id.tv_message)
         private val avatarImageView: ImageView = itemView.findViewById(R.id.ivAvatar)
         private val imageMessageView: ImageView = itemView.findViewById(R.id.iv_image_message) // ImageView for displaying images
 
-        fun bind(message: Message) {
+        fun bind(conv: Conv) {
             // Check if the message content is a URL (image link or other links)
-            if (isValidImageUrl(message.content.toString())) {
+            if (isValidImageUrl(conv.content.toString())) {
                 // If it's an image URL, load the image
                 messageTextView.visibility = View.GONE
                 imageMessageView.visibility = View.VISIBLE
-                Glide.with(itemView.context).load(message.content).into(imageMessageView)
-            } else if (isValidUrl(message.content.toString())) {
+                Glide.with(itemView.context).load(conv.content).into(imageMessageView)
+            } else if (isValidUrl(conv.content.toString())) {
                 // If it's a URL (not an image), display it as a clickable link
                 messageTextView.visibility = View.VISIBLE
                 imageMessageView.visibility = View.GONE
-                messageTextView.text = message.content
-                makeLinkClickable(message.content.toString())
+                messageTextView.text = conv.content
+                makeLinkClickable(conv.content.toString())
             } else {
                 // If it's a text message
                 messageTextView.visibility = View.VISIBLE
                 imageMessageView.visibility = View.GONE
-                messageTextView.text = message.content
+                messageTextView.text = conv.content
             }
 
             // Align message based on sender
             val layoutParams = messageTextView.layoutParams as ViewGroup.MarginLayoutParams
             val parentLayout = itemView.findViewById<LinearLayout>(R.id.messageContainer)
 
-            if (message.isFromOpponent) {
+            if (conv.isFromOpponent) {
                 // Opponent's message: Left align
                 messageTextView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_partner)
                 imageMessageView.background = ContextCompat.getDrawable(itemView.context, R.drawable.chat_bubble_partner)
