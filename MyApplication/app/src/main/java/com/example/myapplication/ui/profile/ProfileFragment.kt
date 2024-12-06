@@ -1,6 +1,11 @@
 package com.example.myapplication.ui.profile
 
+import android.content.Context
+import android.database.Cursor
+import android.net.Uri
 import android.os.Bundle
+import android.provider.DocumentsContract
+import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +19,7 @@ import com.example.myapplication.R
 import com.example.myapplication.api.ApiRepository
 import com.example.myapplication.api.RetrofitInstance
 import com.example.myapplication.databinding.FragmentProfileBinding
+import com.google.android.material.imageview.ShapeableImageView
 import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -29,16 +35,12 @@ class ProfileFragment : Fragment() {
     // ActivityResultLauncher for picking an image from the gallery
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         if (uri != null) {
-            // Convert URI to File
-            println(uri.toString())
-            val file = uri.path?.let { File(it) }
+            val filePath = getFilePath(requireContext(), uri)
+            val file = File(filePath.toString())
             // Assuming you have the extension (you can extract from the URI or filename)
             val extension = "jpg"
-            val part = file?.let { RequestBody.create(MediaType.parse("image/*"), it) }?.let {
-                MultipartBody.Part.createFormData("file",
-                    file.name, it
-                )
-            }
+            val requestBody = RequestBody.create(MediaType.parse("image/jpg"), file)
+            val part = MultipartBody.Part.createFormData("file", file.name, requestBody)
 
             // Get user ID from SharedPreferences
             val sharedPreferences = requireContext().getSharedPreferences("AuthPrefs", MODE_PRIVATE)
@@ -47,22 +49,18 @@ class ProfileFragment : Fragment() {
             // Call the API to update the avatar
             lifecycleScope.launch {
                 try {
-                    val response = part?.let { apiRepository.updateAvatar(userId, extension, it) }
-                    if (response != null) {
-                        if (response.success) {
-                            // Update profile photo URL in shared preferences
-                            sharedPreferences.edit().putString("profilePhoto", response.link).apply()
+                    val response = part.let { apiRepository.updateAvatar(userId, extension, it) }
+                    if (response.success) {
+                        sharedPreferences.edit().putString("profilePhoto", response.link).apply()
 
-                            // Update UI with new avatar (use the link from the response)
-                            Glide.with(requireContext())
-                                .load(response.link) // Load the new image from S3
-                                .into(binding.profileImage)
-                        } else {
-                            // Handle failure, e.g., show error message
-                        }
+                        Glide.with(requireContext())
+                            .load(response.link)
+                            .into(binding.profileImage)
+                    } else {
+                        // Handle failure, e.g., show error message
                     }
                 } catch (e: Exception) {
-                    // Handle error (e.g., network issue)
+                    println(e)
                 }
             }
         }
@@ -74,7 +72,7 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         val profileViewModel =
-            ViewModelProvider(this).get(ProfileViewModel::class.java)
+            ViewModelProvider(this)[ProfileViewModel::class.java]
 
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
@@ -95,11 +93,11 @@ class ProfileFragment : Fragment() {
                     val profilePhotoUrl = it.profilePhoto
                     if (!profilePhotoUrl.isNullOrEmpty()) {
                         Glide.with(requireContext())
-                            .load(profilePhotoUrl) // Load profile image from S3
+                            .load(profilePhotoUrl)
                             .into(binding.profileImage)
                     } else {
                         Glide.with(requireContext())
-                            .load(R.drawable.ic_avatar_default) // Default avatar
+                            .load(R.drawable.ic_avatar_default)
                             .into(binding.profileImage)
                     }
                 } ?: run {
@@ -110,12 +108,58 @@ class ProfileFragment : Fragment() {
             }
         }
 
+
         // Handle click to select a new profile image
         binding.profileImage.setOnClickListener {
             pickImage.launch("image/*")
         }
 
         return root
+    }
+
+    private fun getFilePath(context: Context, uri: Uri): String? {
+        // Check if the URI is a document URI (i.e., the file is in external storage)
+        if (DocumentsContract.isDocumentUri(context, uri)) {
+            // Get the document ID
+            val docId = DocumentsContract.getDocumentId(uri)
+            val split = docId.split(":")
+            val type = split[0]
+
+            var contentUri: Uri? = null
+            if ("primary" == type) {
+                contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            } else {
+                // Handle other types (like cloud storage URIs)
+            }
+
+            val selection = "_id=?"
+            val selectionArgs = arrayOf(split[1])
+
+            return getDataColumn(context, contentUri, selection, selectionArgs)
+        } else if ("content" == uri.scheme) {
+            // Handle content URIs (e.g., images in profile)
+            return getDataColumn(context, uri, null, null)
+        } else if ("file" == uri.scheme) {
+            // Handle file URIs (direct paths)
+            return uri.path
+        }
+        return null
+    }
+
+    private fun getDataColumn(context: Context, uri: Uri?, selection: String?, selectionArgs: Array<String>?): String? {
+        var cursor: Cursor? = null
+        val column = "_data"
+        val projection = arrayOf(column)
+        try {
+            cursor = context.contentResolver.query(uri!!, projection, selection, selectionArgs, null)
+            if (cursor != null && cursor.moveToFirst()) {
+                val columnIndex = cursor.getColumnIndexOrThrow(column)
+                return cursor.getString(columnIndex)
+            }
+        } finally {
+            cursor?.close()
+        }
+        return null
     }
 
     override fun onDestroyView() {

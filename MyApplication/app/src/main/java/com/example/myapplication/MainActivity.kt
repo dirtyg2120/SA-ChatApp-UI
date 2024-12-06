@@ -8,7 +8,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.SearchView
 import android.widget.Toast
-import androidx.activity.addCallback
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
@@ -18,9 +17,10 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.GravityCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.myapplication.api.ApiRepository
 import com.example.myapplication.api.RetrofitInstance
 import com.example.myapplication.databinding.ActivityMainBinding
@@ -30,6 +30,7 @@ import com.example.myapplication.ui.chatroom.ChatRoomAdapter
 import com.example.myapplication.ui.chatroom.ChatRoomFragment
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.imageview.ShapeableImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,6 +44,7 @@ class MainActivity : AppCompatActivity() {
     private val apiRepository = ApiRepository(RetrofitInstance.apiService)
     private lateinit var fab: FloatingActionButton
     private lateinit var fabGroupChat: ExtendedFloatingActionButton
+    private lateinit var navView: NavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +55,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.appBarMain.toolbar)
 
         setupFABs()
+
+        updateAvatar()
 
         // Drawer and Navigation View setup
         val drawerLayout: DrawerLayout = binding.drawerLayout
@@ -310,6 +314,38 @@ class MainActivity : AppCompatActivity() {
             fab.visibility = View.GONE
             val navController = findNavController(R.id.nav_host_fragment_content_main)
             navController.navigate(R.id.fragmentGroupChat)
+        }
+    }
+
+    private fun updateAvatar() {
+        navView = findViewById(R.id.nav_view)
+        val headerView = navView.getHeaderView(0)
+        val sharedPreferences = getSharedPreferences("AuthPrefs", MODE_PRIVATE)
+        val userId = sharedPreferences.getInt("userId", 1)
+        val phone = sharedPreferences.getString("phone", null)
+        lifecycleScope.launch {
+            try {
+                val userResponse = apiRepository.findUser(phone)
+                val user = userResponse.content.find { it.id == userId }
+
+                user?.let {
+                    // Load profile photo if available, otherwise use default avatar
+                val profilePhotoUrl = it.profilePhoto
+                if (!profilePhotoUrl.isNullOrEmpty()) {
+                    Glide.with(this@MainActivity)
+                        .load(profilePhotoUrl)
+                        .into(headerView.findViewById<ShapeableImageView>(R.id.imageAvaView))
+                } else {
+                    Glide.with(this@MainActivity)
+                        .load(R.drawable.ic_avatar_default)
+                        .into(headerView.findViewById<ShapeableImageView>(R.id.imageAvaView))
+                }
+                } ?: run {
+                    // Handle case where user is not found (e.g., show an error message)
+                }
+            } catch (e: Exception) {
+                println(e)
+            }
         }
     }
 }
