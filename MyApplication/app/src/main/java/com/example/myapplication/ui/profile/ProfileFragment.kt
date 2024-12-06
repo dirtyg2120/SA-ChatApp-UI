@@ -9,6 +9,8 @@ import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity.MODE_PRIVATE
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -31,6 +33,7 @@ class ProfileFragment : Fragment() {
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
     private val apiRepository = ApiRepository(RetrofitInstance.apiService)
+    private var isEditing = false
 
     // ActivityResultLauncher for picking an image from the gallery
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -71,11 +74,23 @@ class ProfileFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val profileViewModel =
-            ViewModelProvider(this)[ProfileViewModel::class.java]
-
         _binding = FragmentProfileBinding.inflate(inflater, container, false)
         val root: View = binding.root
+
+        val phoneEditText: EditText = binding.phoneEditText
+        val emailEditText: EditText = binding.emailEditText
+
+        // Set the "Edit Profile" button listener
+        binding.editProfileButton.setOnClickListener {
+            if (isEditing) {
+                saveProfileChanges(phoneEditText.text.toString(), emailEditText.text.toString())
+                setEditMode(false)
+            } else {
+                // Enable editing
+                setEditMode(true)
+            }
+        }
+        initializeProfileFields()
 
         // Get user ID and phone number from SharedPreferences
         val sharedPreferences = requireContext().getSharedPreferences("AuthPrefs", MODE_PRIVATE)
@@ -171,5 +186,60 @@ class ProfileFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    private fun initializeProfileFields() {
+        // Get user data from SharedPreferences or API and populate fields
+        val sharedPreferences = requireContext().getSharedPreferences("AuthPrefs", MODE_PRIVATE)
+        val phone = sharedPreferences.getString("phone", "")
+        val email = sharedPreferences.getString("email", "")
+
+        binding.phoneEditText.setText(phone)
+        binding.emailEditText.setText(email)
+    }
+
+    private fun setEditMode(isEditing: Boolean) {
+        // Toggle EditText enable/disable state
+        binding.phoneEditText.isEnabled = isEditing
+        binding.emailEditText.isEnabled = isEditing
+
+        // Toggle focusable state
+        binding.phoneEditText.isFocusable = isEditing
+        binding.phoneEditText.isFocusableInTouchMode = isEditing
+        binding.emailEditText.isFocusable = isEditing
+        binding.emailEditText.isFocusableInTouchMode = isEditing
+
+        // Update button text
+        if (isEditing) {
+            binding.editProfileButton.text = "Save Changes"
+        } else {
+            binding.editProfileButton.text = "Edit Profile"
+        }
+
+        // Update editing flag
+        this.isEditing = isEditing
+    }
+
+    private fun saveProfileChanges(phone: String, email: String) {
+        // Implement saving profile changes, e.g., call an API to update the user's profile
+        val sharedPreferences = requireContext().getSharedPreferences("AuthPrefs", MODE_PRIVATE)
+        sharedPreferences.edit().putString("phone", phone).putString("email", email).apply()
+
+//        // Optionally, call your API to save changes
+//        lifecycleScope.launch {
+//            try {
+//                val userId = sharedPreferences.getInt("userId", 1)
+//                val response = apiRepository.updateUserProfile(userId, phone, email)
+//                if (response.success) {
+//                    // Handle successful update
+//                    Toast.makeText(requireContext(), "Profile updated!", Toast.LENGTH_SHORT).show()
+//                } else {
+//                    // Handle error
+//                    Toast.makeText(requireContext(), "Failed to update profile", Toast.LENGTH_SHORT).show()
+//                }
+//            } catch (e: Exception) {
+//                Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+//            }
+//        }
     }
 }

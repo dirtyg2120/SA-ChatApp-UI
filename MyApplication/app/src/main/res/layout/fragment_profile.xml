@@ -41,7 +41,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
-    <!-- Phone Number Section -->
+    <!-- Phone Section -->
     <LinearLayout
         android:id="@+id/phone_section"
         android:layout_width="match_parent"
@@ -52,7 +52,7 @@
         app:layout_constraintTop_toBottomOf="@id/username"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
-        
+
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -67,14 +67,19 @@
             android:textColor="@color/black"
             android:textStyle="bold" />
 
-        <TextView
+        <EditText
+            android:id="@+id/phone_edit_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="(+84) 859 545 779"
             android:textSize="22sp"
             android:textColor="#666666"
-            android:layout_marginStart="16dp"/>
+            android:layout_marginStart="16dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
     </LinearLayout>
+
 
     <!-- Gray line -->
     <View
@@ -97,7 +102,7 @@
         app:layout_constraintTop_toBottomOf="@id/phone_section"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent">
-        
+
         <ImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
@@ -112,14 +117,19 @@
             android:textColor="@color/black"
             android:textStyle="bold" />
 
-        <TextView
+        <EditText
+            android:id="@+id/email_edit_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/nav_header_subtitle"
             android:textSize="22sp"
             android:textColor="#666666"
-            android:layout_marginStart="16dp"/>
+            android:layout_marginStart="16dp"
+            android:enabled="false"
+            android:focusable="false"
+            android:focusableInTouchMode="false" />
     </LinearLayout>
+
 
     <!-- Gray line -->
     <View
