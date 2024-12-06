@@ -4,6 +4,8 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.os.Bundle
+import android.os.StrictMode
+import android.os.StrictMode.VmPolicy
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Log
@@ -12,6 +14,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,15 +26,22 @@ import com.example.myapplication.model.ChatRoom
 import com.example.myapplication.model.Conv
 import com.example.myapplication.model.WebSocketMessage
 import com.google.gson.Gson
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.websocket.*
-import io.ktor.websocket.*
-import kotlinx.coroutines.*
+import io.ktor.client.HttpClient
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.websocket.WebSockets
+import io.ktor.client.plugins.websocket.webSocketSession
+import io.ktor.websocket.Frame
+import io.ktor.websocket.WebSocketSession
+import io.ktor.websocket.close
+import io.ktor.websocket.readText
+import io.ktor.websocket.send
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
+
 
 class ChatRoomFragment : Fragment() {
 
@@ -77,14 +87,16 @@ class ChatRoomFragment : Fragment() {
 
     // Camera capture launcher
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+        println("yayyyyyyy")
+        println(imgUri?.path)
         if (isSuccess) {
-            uri?.let { uploadFile(it) }
+            imgUri?.let { uploadFile(it) }
         } else {
             Log.e("Camera", "Failed to capture image.")
         }
     }
 
-    private var uri: Uri? = null
+    private var imgUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -128,6 +140,8 @@ class ChatRoomFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        val builder = VmPolicy.Builder()
+        StrictMode.setVmPolicy(builder.build())
 
         arguments?.let {
             userId = it.getInt(ARG_USER_ID)
@@ -188,8 +202,21 @@ class ChatRoomFragment : Fragment() {
 
         // Handle "Camera" button click
         binding.btnCamera.setOnClickListener {
-            uri = Uri.fromFile(File(requireContext().cacheDir, "photo.jpg"))
-            takePictureLauncher.launch(uri)
+            val photoFile = File(requireContext().cacheDir, "photo.jpg")
+            if (!photoFile.exists()) {
+                try {
+                    photoFile.createNewFile()
+                } catch (e: Exception) {
+                    Log.e("Camera", "Error creating photo file", e)
+                }
+            }
+
+            imgUri = FileProvider.getUriForFile(
+                requireContext(),
+                "com.example.myapplication.fileprovider",
+                photoFile
+            )
+            takePictureLauncher.launch(imgUri)
         }
 
         // Connect to WebSocket
@@ -295,7 +322,7 @@ class ChatRoomFragment : Fragment() {
 
     private fun uploadFile(uri: Uri) {
         val filePath = getFilePath(requireContext(), uri)
-        val file = File(filePath.toString())
+        val file = File(filePath!!)
 
         if (!file.exists()) {
             Log.e("FileUpload", "File not found at path: $filePath")
@@ -332,9 +359,7 @@ class ChatRoomFragment : Fragment() {
 
 
     private fun getFilePath(context: Context, uri: Uri): String? {
-        // Check if the URI is a document URI (i.e., the file is in external storage)
         if (DocumentsContract.isDocumentUri(context, uri)) {
-            // Get the document ID
             val docId = DocumentsContract.getDocumentId(uri)
             val split = docId.split(":")
             val type = split[0]
@@ -343,19 +368,34 @@ class ChatRoomFragment : Fragment() {
             if ("primary" == type) {
                 contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             } else {
-                // Handle other types (like cloud storage URIs)
+                // Handle other types (like cloud storage URIs, if needed)
             }
 
             val selection = "_id=?"
             val selectionArgs = arrayOf(split[1])
 
             return getDataColumn(context, contentUri, selection, selectionArgs)
-        } else if ("content" == uri.scheme) {
-            // Handle content URIs (e.g., images in profile)
-            return getDataColumn(context, uri, null, null)
-        } else if ("file" == uri.scheme) {
-            // Handle file URIs (direct paths)
+        } else if (uri.scheme == "content") {
+            return getDataFromContentUri(context, uri)
+        } else if (uri.scheme == "file") {
             return uri.path
+        }
+        return null
+    }
+
+    private fun getDataFromContentUri(context: Context, uri: Uri): String? {
+        // Try to open an InputStream from the content URI
+        try {
+            context.contentResolver.openInputStream(uri)?.use { inputStream ->
+                // You can now read the InputStream or copy it to a file as needed
+                val tempFile = File(context.cacheDir, "temp_image.jpg")
+                tempFile.outputStream().use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+                return tempFile.absolutePath  // Return the path to the temporary file
+            }
+        } catch (e: Exception) {
+            Log.e("FileUpload", "Error accessing content URI: ${e.localizedMessage}")
         }
         return null
     }
