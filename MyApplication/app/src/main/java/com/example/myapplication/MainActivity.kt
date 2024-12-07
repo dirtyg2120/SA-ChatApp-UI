@@ -150,16 +150,23 @@ class MainActivity : AppCompatActivity() {
                 val chatRooms = response.content.map { message ->
                     val participant = message.participants?.find { it.userId == userId }
                     val username = if ((message.participants?.size ?: 0) > 2) {
-                        message.participants?.take(3)?.joinToString(", ") { it.conversationDisplayName ?: "" } ?: ""
+                        message.participants?.take(3)?.joinToString(", ") { it.participantName ?: "" } ?: ""
                     } else {
                         participant?.conversationDisplayName ?: ""
+                    }
+
+                    val partner = message.participants?.find { it.userId != userId }
+                    val avatarUrl = if ((message.participants?.size ?: 0) > 2) {
+                        null
+                    } else {
+                        partner?.profilePhoto
                     }
                     val lastMessage = message.chatMessages?.lastOrNull()?.content ?: ""
                     val lastMessageTime = message.lastMessageTime?.dropLast(9) ?: ""
                     val messages = message.chatMessages ?: emptyList()
                     val conversationId = participant?.conversationId
 
-                    ChatRoom(username = username, lastMessage = lastMessage, conversationId = conversationId, messages = messages, lastMessageTime=lastMessageTime)
+                    ChatRoom(username = username, lastMessage = lastMessage, conversationId = conversationId, messages = messages, lastMessageTime=lastMessageTime, avatarUrl = avatarUrl)
                 }
 
                 if (chatRooms.isEmpty() && phone != null) {

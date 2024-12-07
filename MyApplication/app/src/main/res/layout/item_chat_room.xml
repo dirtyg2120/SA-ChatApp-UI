@@ -18,7 +18,7 @@
         android:padding="12dp">
 
         <!-- Avatar Image -->
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivAvatar"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -26,7 +26,8 @@
             android:layout_marginEnd="12dp"
             android:contentDescription="User Avatar"
             android:scaleType="centerCrop"
-            android:background="@drawable/avatar_circle_bg" />
+            android:background="@drawable/avatar_circle_bg"
+            app:shapeAppearanceOverlay="@style/circleImageView" />
 
         <!-- Chat Details -->
         <LinearLayout

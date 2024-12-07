@@ -3,10 +3,12 @@ package com.example.myapplication.ui.chatroom
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.myapplication.R
 import com.example.myapplication.model.ChatRoom
 import com.example.myapplication.databinding.ItemChatRoomBinding
@@ -44,6 +46,7 @@ class ChatRoomAdapter(
     override fun getItemCount(): Int = chatRooms.size
 
     inner class ChatViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val ivAvatar: ImageView = itemView.findViewById(R.id.ivAvatar)
         private val tvUsername: TextView = itemView.findViewById(R.id.tvUsername)
         private val tvMessage: TextView = itemView.findViewById(R.id.tvMessage)
         private val tvTimestamp: TextView = itemView.findViewById(R.id.tvTimestamp)
@@ -54,6 +57,12 @@ class ChatRoomAdapter(
             tvUsername.text = chatRoom.username
             tvMessage.text = chatRoom.lastMessage
             tvTimestamp.text = chatRoom.lastMessageTime
+            Glide.with(itemView.context)
+                .load(chatRoom.avatarUrl)
+                .placeholder(R.drawable.ic_avatar_default)
+                .error(R.drawable.ic_avatar_default)
+                .dontTransform()
+                .into(ivAvatar)
 
             if (chatRoom.conversationId == null) {
                 tvTimestamp.visibility = View.GONE
