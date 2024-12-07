@@ -76,6 +76,14 @@
             android:layout_gravity="center_vertical"
             android:textColor="@android:color/white"
             android:background="@drawable/ic_add_friend" />
+
+        <Button
+            android:id="@+id/btnMore"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:background="@drawable/ic_more_vert"
+            android:backgroundTint="@android:color/black" />
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

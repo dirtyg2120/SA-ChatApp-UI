@@ -114,6 +114,7 @@ class MainActivity : AppCompatActivity() {
             },
             onAddFriendClick = { chatRoom ->
                 handleAddFriendClick(chatRoom)
+                fetchChatRooms()
             }
         )
         recyclerView.adapter = chatRoomAdapter
