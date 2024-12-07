@@ -57,7 +57,7 @@ class ProfileFragment : Fragment() {
                         sharedPreferences.edit().putString("profilePhoto", response.link).apply()
 
                         Glide.with(requireContext())
-                            .load(response.link)
+                            .load(response.link).dontTransform()
                             .into(binding.profileImage)
                     } else {
                         // Handle failure, e.g., show error message
@@ -108,10 +108,10 @@ class ProfileFragment : Fragment() {
                     val profilePhotoUrl = it.profilePhoto
                     if (!profilePhotoUrl.isNullOrEmpty()) {
                         Glide.with(requireContext())
-                            .load(profilePhotoUrl)
+                            .load(profilePhotoUrl).dontTransform()
                             .into(binding.profileImage)
                         Glide.with(requireContext())
-                            .load(profilePhotoUrl)
+                            .load(profilePhotoUrl).dontTransform()
                             .into(requireActivity().findViewById<ShapeableImageView>(R.id.imageAvaView))
                     } else {
                         Glide.with(requireContext())

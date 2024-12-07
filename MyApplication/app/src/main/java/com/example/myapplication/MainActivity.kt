@@ -149,7 +149,11 @@ class MainActivity : AppCompatActivity() {
                 // If chat rooms exist, update the UI with the existing ones
                 val chatRooms = response.content.map { message ->
                     val participant = message.participants?.find { it.userId == userId }
-                    val username = participant?.conversationDisplayName ?: ""
+                    val username = if ((message.participants?.size ?: 0) > 2) {
+                        message.participants?.take(3)?.joinToString(", ") { it.conversationDisplayName ?: "" } ?: ""
+                    } else {
+                        participant?.conversationDisplayName ?: ""
+                    }
                     val lastMessage = message.chatMessages?.lastOrNull()?.content ?: ""
                     val lastMessageTime = message.lastMessageTime?.dropLast(9) ?: ""
                     val messages = message.chatMessages ?: emptyList()
@@ -336,7 +340,7 @@ class MainActivity : AppCompatActivity() {
                 val profilePhotoUrl = it.profilePhoto
                 if (!profilePhotoUrl.isNullOrEmpty()) {
                     Glide.with(this@MainActivity)
-                        .load(profilePhotoUrl)
+                        .load(profilePhotoUrl).dontTransform()
                         .into(headerView.findViewById<ShapeableImageView>(R.id.imageAvaView))
                 } else {
                     Glide.with(this@MainActivity)

@@ -43,7 +43,7 @@ class MessageAdapter(
                 // If it's an image URL, load the image
                 messageTextView.visibility = View.GONE
                 imageMessageView.visibility = View.VISIBLE
-                Glide.with(itemView.context).load(conv.content).into(imageMessageView)
+                Glide.with(itemView.context).load(conv.content).dontTransform().into(imageMessageView)
             } else if (isValidUrl(conv.content.toString())) {
                 // If it's a URL (not an image), display it as a clickable link
                 messageTextView.visibility = View.VISIBLE
